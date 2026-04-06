@@ -74,9 +74,9 @@ FUTURE: AI-CHAT - ask an LLM questions about the vault
 ## Details 
 
 - The application will be build using Elixir, Phoenix, LiveView 
-- There should be an escript to launch the app, with a help page similar to CollabMD
+- There should be an escript to launch the app, with options and a help page similar to CollabMD
 - I don't want side-by-side edit/view - user should be able to toggle between the two modes 
 - There should be a command-line option to specify the initial page to view 
 - There should be a URL for each document - easy to bookmark 
 - Use cookies to remember last visited page
-
+- The design should be responsive, to work well on phone screens and mobile devices
