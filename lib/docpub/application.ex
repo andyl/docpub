@@ -7,15 +7,14 @@ defmodule Docpub.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      DocpubWeb.Telemetry,
-      {DNSCluster, query: Application.get_env(:docpub, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Docpub.PubSub},
-      # Start a worker by calling: Docpub.Worker.start_link(arg)
-      # {Docpub.Worker, arg},
-      # Start to serve requests, typically the last entry
-      DocpubWeb.Endpoint
-    ]
+    children =
+      [
+        DocpubWeb.Telemetry,
+        {DNSCluster, query: Application.get_env(:docpub, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: Docpub.PubSub},
+        Docpub.VaultWatcher,
+        DocpubWeb.Endpoint
+      ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

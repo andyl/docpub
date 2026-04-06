@@ -8,7 +8,11 @@
 import Config
 
 config :docpub,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  vault_path: nil,
+  initial_page: nil,
+  auth: :none,
+  auth_password: nil
 
 # Configure the endpoint
 config :docpub, DocpubWeb.Endpoint,

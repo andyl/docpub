@@ -1,0 +1,227 @@
+<script :type={Phoenix.LiveView.ColocatedHook} name=".MermaidRenderer">
+  let mermaidLoaded = false;
+  let mermaidPromise = null;
+
+  async function loadMermaid() {
+    if (mermaidLoaded) return;
+    if (mermaidPromise) return mermaidPromise;
+
+    mermaidPromise = new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
+      script.onload = () => {
+        window.mermaid.initialize({ startOnLoad: false, theme: "default" });
+        mermaidLoaded = true;
+        resolve();
+      };
+      document.head.appendChild(script);
+    });
+
+    return mermaidPromise;
+  }
+
+  async function renderMermaidBlocks(el) {
+    const blocks = el.querySelectorAll("pre.mermaid");
+    if (blocks.length === 0) return;
+
+    await loadMermaid();
+
+    for (const block of blocks) {
+      if (block.dataset.processed) continue;
+      block.dataset.processed = "true";
+
+      const code = block.textContent;
+      const id = "mermaid-" + Math.random().toString(36).substr(2, 9);
+
+      try {
+        const { svg } = await window.mermaid.render(id, code);
+        block.innerHTML = svg;
+      } catch (e) {
+        console.error("Mermaid render error:", e);
+      }
+    }
+  }
+
+  export default {
+    mounted() { renderMermaidBlocks(this.el); },
+    updated() { renderMermaidBlocks(this.el); }
+  };
+</script>
+
+<Layouts.app flash={@flash}>
+  <div
+    id="vault-app"
+    class="vault-layout flex h-[calc(100vh-5rem)] -mt-16 -mx-4 sm:-mx-6 lg:-mx-8"
+  >
+    <%!-- Mobile sidebar toggle --%>
+    <button
+      id="sidebar-toggle"
+      phx-click="toggle_sidebar"
+      class="lg:hidden fixed top-16 left-2 z-30 btn btn-sm btn-ghost"
+      aria-label="Toggle sidebar"
+    >
+      <.icon name={if @sidebar_open, do: "hero-x-mark", else: "hero-bars-3"} class="size-5" />
+    </button>
+
+    <%!-- Sidebar --%>
+    <aside
+      id="sidebar"
+      class={[
+        "vault-sidebar flex flex-col border-r border-base-300 bg-base-200 w-72 shrink-0 overflow-hidden transition-all duration-200",
+        "fixed lg:relative z-20 h-full",
+        !@sidebar_open && "-translate-x-full lg:translate-x-0 lg:w-0 lg:border-0"
+      ]}
+    >
+      <div class="p-3 border-b border-base-300">
+        <form phx-submit="search" class="flex gap-1">
+          <input
+            type="text"
+            name="q"
+            value={@search_query}
+            placeholder="Search vault..."
+            class="input input-sm input-bordered flex-1"
+            autocomplete="off"
+          />
+          <button type="submit" class="btn btn-sm btn-ghost">
+            <.icon name="hero-magnifying-glass" class="size-4" />
+          </button>
+          <%= if @search_results do %>
+            <button type="button" phx-click="clear_search" class="btn btn-sm btn-ghost">
+              <.icon name="hero-x-mark" class="size-4" />
+            </button>
+          <% end %>
+        </form>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-2">
+        <%= if @search_results do %>
+          <div id="search-results" class="space-y-2">
+            <p class="text-xs text-base-content/60 px-1">
+              {length(@search_results)} result(s) for "{@search_query}"
+            </p>
+            <%= for result <- @search_results do %>
+              <div class="rounded bg-base-300/50 p-2">
+                <.link
+                  navigate={~p"/doc/#{String.split(Path.rootname(result.path), "/")}"}
+                  class="text-sm font-medium text-primary hover:underline"
+                >
+                  {result.path}
+                </.link>
+                <%= for match <- Enum.take(result.matches, 3) do %>
+                  <p class="text-xs text-base-content/70 mt-1 line-clamp-2">
+                    <span class="text-base-content/40">L{match.line}:</span> {match.text}
+                  </p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div id="file-tree">
+            <.tree_nodes nodes={@tree} current_path={@current_path} expanded={@expanded_folders} />
+          </div>
+        <% end %>
+      </div>
+
+      <div class="p-2 border-t border-base-300">
+        <form phx-submit="create" class="flex gap-1">
+          <input
+            type="text"
+            name="name"
+            value={@new_file_name}
+            phx-change="update_new_file_name"
+            placeholder="New document..."
+            class="input input-sm input-bordered flex-1"
+            autocomplete="off"
+          />
+          <button type="submit" class="btn btn-sm btn-primary">
+            <.icon name="hero-plus" class="size-4" />
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <%!-- Main content --%>
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-4xl mx-auto p-4 lg:p-8">
+        <%= cond do %>
+          <% @doc_type == :not_found -> %>
+            <div id="not-found" class="text-center py-20">
+              <.icon
+                name="hero-document-magnifying-glass"
+                class="size-16 mx-auto text-base-content/30"
+              />
+              <h2 class="text-xl font-semibold mt-4">Document not found</h2>
+              <p class="text-base-content/60 mt-2">The page "{@current_doc}" does not exist.</p>
+            </div>
+          <% @doc_type == :image -> %>
+            <div id="image-viewer" class="text-center">
+              <h2 class="text-lg font-semibold mb-4">{Path.basename(@current_path)}</h2>
+              <img
+                src={~p"/vault_file/#{String.split(@current_path, "/")}"}
+                alt={Path.basename(@current_path)}
+                class="max-w-full mx-auto rounded shadow"
+              />
+            </div>
+          <% @doc_type == :pdf -> %>
+            <div id="pdf-viewer">
+              <h2 class="text-lg font-semibold mb-4">{Path.basename(@current_path)}</h2>
+              <iframe
+                src={~p"/vault_file/#{String.split(@current_path, "/")}"}
+                class="w-full h-[80vh] rounded border border-base-300"
+              >
+              </iframe>
+            </div>
+          <% @doc_type == :markdown and @mode == :edit -> %>
+            <div id="editor">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold">{@page_title}</h2>
+                <div class="flex gap-2">
+                  <button phx-click="toggle_mode" class="btn btn-sm btn-ghost">Cancel</button>
+                  <button form="edit-form" type="submit" class="btn btn-sm btn-primary">
+                    <.icon name="hero-check" class="size-4" /> Save
+                  </button>
+                </div>
+              </div>
+              <form id="edit-form" phx-submit="save">
+                <textarea
+                  name="content"
+                  class="textarea textarea-bordered w-full font-mono text-sm leading-relaxed"
+                  rows="30"
+                  phx-no-curly-interpolation
+                >{@raw_content}</textarea>
+              </form>
+            </div>
+          <% @doc_type == :markdown and @mode == :view -> %>
+            <div id="viewer">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold">{@page_title}</h2>
+                <div class="flex gap-2">
+                  <button phx-click="toggle_mode" class="btn btn-sm btn-ghost">
+                    <.icon name="hero-pencil-square" class="size-4" /> Edit
+                  </button>
+                  <button
+                    phx-click="delete"
+                    class="btn btn-sm btn-ghost text-error"
+                    data-confirm="Are you sure you want to delete this document?"
+                  >
+                    <.icon name="hero-trash" class="size-4" />
+                  </button>
+                </div>
+              </div>
+              <article id="doc-content" class="vault-prose" phx-hook=".MermaidRenderer">
+                {Phoenix.HTML.raw(@rendered_html)}
+              </article>
+            </div>
+          <% true -> %>
+            <div id="welcome" class="text-center py-20">
+              <.icon name="hero-book-open" class="size-16 mx-auto text-base-content/30" />
+              <h2 class="text-xl font-semibold mt-4">Welcome to Docpub</h2>
+              <p class="text-base-content/60 mt-2">
+                Select a document from the sidebar to get started.
+              </p>
+            </div>
+        <% end %>
+      </div>
+    </main>
+  </div>
+</Layouts.app>

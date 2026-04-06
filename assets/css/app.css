@@ -103,3 +103,50 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* Vault prose styling for rendered markdown */
+.vault-prose {
+  line-height: 1.75;
+}
+
+.vault-prose h1 { font-size: 2em; font-weight: 700; margin-top: 0; margin-bottom: 0.75em; border-bottom: 1px solid oklch(70% 0 0 / 20%); padding-bottom: 0.3em; }
+.vault-prose h2 { font-size: 1.5em; font-weight: 600; margin-top: 1.5em; margin-bottom: 0.5em; border-bottom: 1px solid oklch(70% 0 0 / 10%); padding-bottom: 0.25em; }
+.vault-prose h3 { font-size: 1.25em; font-weight: 600; margin-top: 1.25em; margin-bottom: 0.5em; }
+.vault-prose h4 { font-size: 1.1em; font-weight: 600; margin-top: 1em; margin-bottom: 0.5em; }
+
+.vault-prose p { margin-top: 0.75em; margin-bottom: 0.75em; }
+
+.vault-prose a:not(.vault-link-broken) { color: oklch(62% 0.214 259.815); text-decoration: underline; text-underline-offset: 2px; }
+.vault-prose a:hover { opacity: 0.8; }
+
+.vault-prose .vault-link-broken { color: oklch(58% 0.253 17.585); text-decoration: line-through; cursor: not-allowed; opacity: 0.6; }
+
+.vault-prose ul { list-style-type: disc; padding-left: 1.5em; margin-top: 0.5em; margin-bottom: 0.5em; }
+.vault-prose ol { list-style-type: decimal; padding-left: 1.5em; margin-top: 0.5em; margin-bottom: 0.5em; }
+.vault-prose li { margin-top: 0.25em; margin-bottom: 0.25em; }
+.vault-prose li > ul, .vault-prose li > ol { margin-top: 0.125em; margin-bottom: 0.125em; }
+
+.vault-prose blockquote { border-left: 4px solid oklch(70% 0 0 / 30%); padding-left: 1em; margin-left: 0; margin-top: 0.75em; margin-bottom: 0.75em; font-style: italic; opacity: 0.85; }
+
+.vault-prose code { font-family: ui-monospace, monospace; font-size: 0.875em; padding: 0.15em 0.35em; border-radius: 0.25em; background: oklch(50% 0 0 / 10%); }
+.vault-prose pre { margin-top: 1em; margin-bottom: 1em; padding: 1em; border-radius: 0.5em; overflow-x: auto; font-size: 0.875em; line-height: 1.6; }
+.vault-prose pre code { padding: 0; background: transparent; font-size: inherit; }
+
+.vault-prose table { width: 100%; border-collapse: collapse; margin-top: 1em; margin-bottom: 1em; }
+.vault-prose th, .vault-prose td { border: 1px solid oklch(70% 0 0 / 20%); padding: 0.5em 0.75em; text-align: left; }
+.vault-prose th { font-weight: 600; background: oklch(50% 0 0 / 5%); }
+
+.vault-prose hr { border: none; border-top: 1px solid oklch(70% 0 0 / 20%); margin: 2em 0; }
+
+.vault-prose img { max-width: 100%; height: auto; border-radius: 0.375em; margin-top: 0.75em; margin-bottom: 0.75em; }
+
+.vault-prose input[type="checkbox"] { margin-right: 0.5em; }
+
+.vault-prose .footnotes { font-size: 0.875em; margin-top: 2em; border-top: 1px solid oklch(70% 0 0 / 20%); padding-top: 1em; }
+
+/* Mermaid diagram containers */
+.vault-prose pre.mermaid { background: transparent; padding: 1em 0; text-align: center; }
+.vault-prose pre.mermaid svg { max-width: 100%; height: auto; }
+
+/* Line clamp utility */
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

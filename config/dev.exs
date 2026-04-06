@@ -80,3 +80,6 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Default vault path to current directory in dev
+config :docpub, vault_path: File.cwd!()
