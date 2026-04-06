@@ -13,7 +13,19 @@ defmodule Docpub.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      usage_rules: usage_rules()
+    ]
+  end
+
+  defp usage_rules do
+    [
+      file: "RULES.md",
+      usage_rules: [{~r/.*/, link: :markdown}],
+      skills: [
+        location: ".claude/skills",
+        build: []
+      ]
     ]
   end
 
@@ -42,6 +54,7 @@ defmodule Docpub.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:usage_rules, "~> 1.0", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev, :test]},
       {:phoenix, "~> 1.8.5"},
       {:phoenix_html, "~> 4.1"},
