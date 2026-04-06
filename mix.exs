@@ -1,10 +1,12 @@
 defmodule Docpub.MixProject do
   use Mix.Project
 
+  @version "0.0.1"
+
   def project do
     [
       app: :docpub,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
