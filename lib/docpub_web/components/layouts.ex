@@ -5,6 +5,9 @@ defmodule DocpubWeb.Layouts do
   """
   use DocpubWeb, :html
 
+  @asset_vsn :erlang.phash2(:os.system_time())
+  def asset_vsn, do: @asset_vsn
+
   embed_templates "layouts/*"
 
   @doc """

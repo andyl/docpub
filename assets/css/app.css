@@ -4,7 +4,9 @@
 @import "tailwindcss" source(none);
 @source "../css";
 @source "../js";
-@source "../../lib/docpub_web/**/*.{ex,heex}";
+@source "../../lib/docpub_web";
+/* Heroicon classes used in .ex files (not auto-detected by Tailwind's content scanner) */
+@source inline("hero-chevron-down-micro hero-chevron-right-micro hero-folder-micro hero-document-text-micro hero-photo-micro hero-document-micro");
 
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
