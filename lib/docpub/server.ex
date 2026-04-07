@@ -30,6 +30,10 @@ defmodule Docpub.Server do
     * `:help`
     * `:version`
     * `{:run, opts, positional}`
+
+  Returns `:help` when no positional argument is given, so that callers
+  invoked with no arguments display usage rather than silently serving
+  the current working directory.
   """
   def parse_args(args) do
     {opts, positional, _} = OptionParser.parse(args, switches: @switches)
@@ -37,6 +41,7 @@ defmodule Docpub.Server do
     cond do
       opts[:help] -> :help
       opts[:version] -> :version
+      positional == [] -> :help
       true -> {:run, opts, positional}
     end
   end
@@ -75,7 +80,8 @@ defmodule Docpub.Server do
     end
   end
 
-  defp resolve_vault_path([]), do: {:ok, File.cwd!()}
+  defp resolve_vault_path([]),
+    do: {:error, "Vault path is required. Pass `.` to serve the current directory."}
 
   defp resolve_vault_path([path | _]) do
     expanded = Path.expand(path)

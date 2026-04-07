@@ -85,5 +85,4 @@ defmodule DocpubWeb.Layouts do
     </div>
     """
   end
-
 end

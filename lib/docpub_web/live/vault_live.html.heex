@@ -210,7 +210,10 @@
               </div>
               <article
                 id="doc-content"
-                class={["vault-prose", @sidebar_open && "max-md:whitespace-nowrap max-md:overflow-x-hidden"]}
+                class={[
+                  "vault-prose",
+                  @sidebar_open && "max-md:whitespace-nowrap max-md:overflow-x-hidden"
+                ]}
                 phx-hook=".MermaidRenderer"
               >
                 {Phoenix.HTML.raw(@rendered_html)}

@@ -6,9 +6,10 @@ defmodule Mix.Tasks.Docpub.Serve do
 
   ## Usage
 
-      mix docpub.serve [vault_path] [options]
+      mix docpub.serve <vault_path> [options]
 
-  If `vault_path` is omitted, the current working directory is used.
+  `vault_path` is required. Pass `.` to serve the current directory.
+  Running with no arguments prints this help message.
 
   ## Options
 
@@ -21,6 +22,7 @@ defmodule Mix.Tasks.Docpub.Serve do
 
   ## Examples
 
+      mix docpub.serve .
       mix docpub.serve ~/my-vault
       mix docpub.serve ~/my-vault --port 8080
       mix docpub.serve ~/my-vault --host 0.0.0.0 --port 8080

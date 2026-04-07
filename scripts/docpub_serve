@@ -7,8 +7,9 @@
 #
 # Usage:
 #
-#     scripts/docpub_serve [vault_path] [options]
+#     scripts/docpub_serve <vault_path> [options]
 #
+# vault_path is required; pass `.` to serve the current directory.
 # Run with `--help` for the full option list.
 #
 # By default this references the surrounding repository via a path
@@ -40,27 +41,37 @@ switches = [
 
 {opts, positional, _} = OptionParser.parse(System.argv(), switches: switches)
 
+show_help = fn ->
+  IO.puts("""
+  Starts the Docpub vault viewer server.
+
+  Usage:
+
+      scripts/docpub_serve <vault_path> [options]
+
+  vault_path is required. Pass `.` to serve the current directory.
+  Running with no arguments prints this help message.
+
+  Options:
+
+    --port           Port to listen on (default: 4000)
+    --host           Host to bind to (default: 127.0.0.1)
+    --password       Require password authentication (open access if omitted)
+    --initial-page   Initial page to display (e.g., README)
+    --help           Show this help message
+    --version        Show version
+
+  Examples:
+
+      scripts/docpub_serve .
+      scripts/docpub_serve ~/my-vault
+      scripts/docpub_serve ~/my-vault --port 8080
+  """)
+end
+
 cond do
   opts[:help] ->
-    IO.puts("""
-    Starts the Docpub vault viewer server.
-
-    Usage:
-
-        scripts/docpub_serve [vault_path] [options]
-
-    If vault_path is omitted, the current working directory is used.
-
-    Options:
-
-      --port           Port to listen on (default: 4000)
-      --host           Host to bind to (default: 127.0.0.1)
-      --password       Require password authentication (open access if omitted)
-      --initial-page   Initial page to display (e.g., README)
-      --help           Show this help message
-      --version        Show version
-    """)
-
+    show_help.()
     System.halt(0)
 
   opts[:version] ->
@@ -74,6 +85,10 @@ cond do
       end
 
     IO.puts("Docpub v#{version}")
+    System.halt(0)
+
+  positional == [] ->
+    show_help.()
     System.halt(0)
 
   true ->
