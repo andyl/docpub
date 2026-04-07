@@ -33,15 +33,6 @@ config :docpub, DocpubWeb.Endpoint,
   pubsub_server: Docpub.PubSub,
   live_view: [signing_salt: "z4X1F9SI"]
 
-# Configure the mailer
-#
-# By default it uses the "Local" adapter which stores the emails
-# locally. You can see the emails in your browser, at "/dev/mailbox".
-#
-# For production it's recommended to configure a different adapter
-# at the `config/runtime.exs`.
-config :docpub, Docpub.Mailer, adapter: Swoosh.Adapters.Local
-
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.25.4",

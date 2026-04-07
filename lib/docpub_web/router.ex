@@ -36,7 +36,7 @@ defmodule DocpubWeb.Router do
     get "/", PageController, :home
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
+  # Enable LiveDashboard in development
   if Application.compile_env(:docpub, :dev_routes) do
     import Phoenix.LiveDashboard.Router
 
@@ -44,7 +44,6 @@ defmodule DocpubWeb.Router do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: DocpubWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 end

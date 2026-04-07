@@ -13,7 +13,7 @@ config :docpub, DocpubWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "WY/8gniTxM4C8onrO0VHqyxPxNJZatO6rkdW8SHt7o/QPDh9fF/OaP7vmPsD+NY7",
+  secret_key_base: "WY/8gniTxM4C8onrO0VHqyxPxNJZatO6rkdW8SHt7o/QPDh9fF/OaP7vmPsD+NY7xK",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:docpub, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:docpub, ~w(--watch)]}
@@ -77,9 +77,6 @@ config :phoenix_live_view,
   debug_attributes: true,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
 
 # Default vault path to current directory in dev
 config :docpub, vault_path: File.cwd!()

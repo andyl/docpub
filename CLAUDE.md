@@ -21,7 +21,6 @@ Docpub is a Phoenix 1.8 + LiveView web application (Elixir ~> 1.15). No database
 - **Backend**: Phoenix 1.8.5, Phoenix LiveView 1.1.0, Elixir
 - **Frontend**: Tailwind CSS v4, esbuild, daisyUI themes, Heroicons
 - **HTTP client**: Req (never use httpoison, tesla, or httpc)
-- **Email**: Swoosh
 - **Testing**: ExUnit, Phoenix.LiveViewTest, LazyHTML
 
 ## Architecture
