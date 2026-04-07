@@ -33,7 +33,7 @@ defmodule DocpubWeb.Router do
 
     get "/vault_file/*path", VaultFileController, :show
     live "/doc/*path", VaultLive
-    get "/", PageController, :home
+    live "/", VaultLive
   end
 
   # Enable LiveDashboard in development

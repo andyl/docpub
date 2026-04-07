@@ -42,8 +42,16 @@ defmodule DocpubWeb.VaultLive do
   end
 
   def handle_params(_params, _uri, socket) do
-    # Root path - redirect to last visited or show welcome
-    case socket.assigns.last_visited do
+    initial_page = Application.get_env(:docpub, :initial_page)
+
+    target =
+      cond do
+        initial_page -> initial_page
+        socket.assigns.last_visited -> socket.assigns.last_visited
+        true -> nil
+      end
+
+    case target do
       nil -> {:noreply, socket}
       path -> {:noreply, push_navigate(socket, to: ~p"/doc/#{String.split(path, "/")}")}
     end
