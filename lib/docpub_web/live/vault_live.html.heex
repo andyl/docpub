@@ -145,6 +145,17 @@
                 class="size-16 mx-auto text-base-content/30"
               />
               <p class="text-base-content/60 mt-4">Select a file from the sidebar.</p>
+              <button
+                phx-click="toggle_sidebar"
+                class={[
+                  "md:hidden btn btn-sm btn-ghost px-1 mb-4 mt-20",
+                  @sidebar_open && "hidden"
+                ]}
+                aria-label="Show sidebar"
+              >
+                <.icon name="hero-chevron-right" class="size-4" />
+                <span class="text-sm">Show sidebar</span>
+              </button>
             </div>
           <% @doc_type == :image -> %>
             <div id="image-viewer" class="text-center">
@@ -225,10 +236,21 @@
             </div>
           <% true -> %>
             <div id="welcome" class="text-center py-20">
+              <button
+                phx-click="toggle_sidebar"
+                class={[
+                  "md:hidden btn btn-sm btn-ghost px-1 mb-4",
+                  @sidebar_open && "hidden"
+                ]}
+                aria-label="Show sidebar"
+              >
+                <.icon name="hero-chevron-right" class="size-4" />
+                <span class="text-sm">Show sidebar</span>
+              </button>
               <.icon name="hero-book-open" class="size-16 mx-auto text-base-content/30" />
-              <h2 class="text-xl font-semibold mt-4">Welcome to {Docpub.Server.title()}</h2>
+              <h2 class="text-xl font-semibold mt-4">Welcome!</h2>
               <p class="text-base-content/60 mt-2">
-                Select a document from the sidebar to get started.
+                Select a document from the sidebar.
               </p>
             </div>
         <% end %>
