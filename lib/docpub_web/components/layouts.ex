@@ -38,7 +38,7 @@ defmodule DocpubWeb.Layouts do
       </div>
     </header>
 
-    <div class="flex-1">
+    <div class="flex-1 overflow-hidden">
       {render_slot(@inner_block)}
     </div>
 
