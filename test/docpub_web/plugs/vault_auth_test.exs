@@ -3,11 +3,11 @@ defmodule DocpubWeb.Plugs.VaultAuthTest do
 
   alias DocpubWeb.Plugs.VaultAuth
 
-  describe "when auth is :none" do
+  describe "when no password is configured" do
     setup do
-      prev = Application.get_env(:docpub, :auth)
-      Application.put_env(:docpub, :auth, :none)
-      on_exit(fn -> Application.put_env(:docpub, :auth, prev || :none) end)
+      prev = Application.get_env(:docpub, :password)
+      Application.put_env(:docpub, :password, nil)
+      on_exit(fn -> Application.put_env(:docpub, :password, prev) end)
       :ok
     end
 
@@ -17,19 +17,15 @@ defmodule DocpubWeb.Plugs.VaultAuthTest do
     end
   end
 
-  describe "when auth is :password" do
+  describe "when password is configured" do
     setup do
-      prev_auth = Application.get_env(:docpub, :auth)
-      prev_pass = Application.get_env(:docpub, :auth_password)
-      Application.put_env(:docpub, :auth, :password)
-      Application.put_env(:docpub, :auth_password, "secret")
+      prev = Application.get_env(:docpub, :password)
+      Application.put_env(:docpub, :password, "secret")
 
       on_exit(fn ->
-        Application.put_env(:docpub, :auth, prev_auth || :none)
-
-        if prev_pass,
-          do: Application.put_env(:docpub, :auth_password, prev_pass),
-          else: Application.delete_env(:docpub, :auth_password)
+        if prev,
+          do: Application.put_env(:docpub, :password, prev),
+          else: Application.put_env(:docpub, :password, nil)
       end)
 
       :ok

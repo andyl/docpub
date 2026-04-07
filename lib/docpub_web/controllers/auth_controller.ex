@@ -2,7 +2,7 @@ defmodule DocpubWeb.AuthController do
   use DocpubWeb, :controller
 
   def callback(conn, %{"password" => password}) do
-    configured_password = Application.get_env(:docpub, :auth_password)
+    configured_password = Application.get_env(:docpub, :password)
 
     if Plug.Crypto.secure_compare(password, configured_password || "") do
       return_to = get_session(conn, :return_to) || "/"

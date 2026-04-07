@@ -29,7 +29,7 @@ defmodule DocpubWeb.LoginLive do
 
   @impl true
   def handle_event("login", %{"password" => password}, socket) do
-    configured_password = Application.get_env(:docpub, :auth_password)
+    configured_password = Application.get_env(:docpub, :password)
 
     if Plug.Crypto.secure_compare(password, configured_password || "") do
       {:noreply,

@@ -32,8 +32,7 @@ docpub_path = Path.expand("..", __DIR__)
 switches = [
   port: :integer,
   host: :string,
-  auth: :string,
-  auth_password: :string,
+  password: :string,
   initial_page: :string,
   help: :boolean,
   version: :boolean
@@ -56,8 +55,7 @@ cond do
 
       --port           Port to listen on (default: 4000)
       --host           Host to bind to (default: 127.0.0.1)
-      --auth           Authentication mode: none or password (default: none)
-      --auth-password  Password for authentication (required when --auth=password)
+      --password       Require password authentication (open access if omitted)
       --initial-page   Initial page to display (e.g., README)
       --help           Show this help message
       --version        Show version
@@ -112,8 +110,7 @@ Mix.install(
       generators: [timestamp_type: :utc_datetime],
       vault_path: nil,
       initial_page: nil,
-      auth: :none,
-      auth_password: nil
+      password: nil
     ]
   ],
   # Do NOT start :docpub here. Server.configure/2 needs to write

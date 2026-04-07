@@ -12,8 +12,7 @@ defmodule Docpub.Server do
   @switches [
     port: :integer,
     host: :string,
-    auth: :string,
-    auth_password: :string,
+    password: :string,
     initial_page: :string,
     help: :boolean,
     version: :boolean
@@ -51,15 +50,9 @@ defmodule Docpub.Server do
   """
   def configure(opts, positional) do
     with {:ok, vault_path} <- resolve_vault_path(positional),
-         {:ok, auth} <- parse_auth(opts[:auth]),
-         :ok <- validate_auth_password(auth, opts[:auth_password]),
          {:ok, ip} <- maybe_parse_ip(opts[:host]) do
       Application.put_env(:docpub, :vault_path, vault_path)
-      Application.put_env(:docpub, :auth, auth)
-
-      if auth == :password do
-        Application.put_env(:docpub, :auth_password, opts[:auth_password])
-      end
+      Application.put_env(:docpub, :password, opts[:password])
 
       if opts[:initial_page] do
         Application.put_env(:docpub, :initial_page, opts[:initial_page])
@@ -77,7 +70,7 @@ defmodule Docpub.Server do
          vault_path: vault_path,
          host: opts[:host] || "localhost",
          port: opts[:port] || 4000,
-         auth: auth
+         password: opts[:password] != nil
        }}
     end
   end
@@ -93,16 +86,6 @@ defmodule Docpub.Server do
       {:error, "Vault path does not exist or is not a directory: #{expanded}"}
     end
   end
-
-  defp parse_auth(nil), do: {:ok, :none}
-  defp parse_auth("none"), do: {:ok, :none}
-  defp parse_auth("password"), do: {:ok, :password}
-  defp parse_auth(other), do: {:error, "Invalid auth mode: #{other}. Use 'none' or 'password'."}
-
-  defp validate_auth_password(:password, nil),
-    do: {:error, "--auth-password is required when --auth=password"}
-
-  defp validate_auth_password(_, _), do: :ok
 
   defp maybe_parse_ip(nil), do: {:ok, nil}
   defp maybe_parse_ip("0.0.0.0"), do: {:ok, {0, 0, 0, 0}}

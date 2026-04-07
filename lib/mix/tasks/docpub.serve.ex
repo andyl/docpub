@@ -14,8 +14,7 @@ defmodule Mix.Tasks.Docpub.Serve do
 
     * `--port` - Port to listen on (default: 4000)
     * `--host` - Host to bind to (default: 127.0.0.1)
-    * `--auth` - Authentication mode: `none` or `password` (default: none)
-    * `--auth-password` - Password for authentication (required when `--auth=password`)
+    * `--password` - Require password authentication (open access if omitted)
     * `--initial-page` - Initial page to display (e.g., `README`)
     * `--help` - Show this help message
     * `--version` - Show version
@@ -25,7 +24,7 @@ defmodule Mix.Tasks.Docpub.Serve do
       mix docpub.serve ~/my-vault
       mix docpub.serve ~/my-vault --port 8080
       mix docpub.serve ~/my-vault --host 0.0.0.0 --port 8080
-      mix docpub.serve ~/my-vault --auth password --auth-password secret
+      mix docpub.serve ~/my-vault --password secret
       mix docpub.serve ~/my-vault --initial-page README
 
   ## See also
