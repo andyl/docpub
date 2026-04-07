@@ -5,6 +5,19 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.0 (2026-04-07)
+
+
+
+
+### Features:
+
+* add title option by andyl
+
+### Bug Fixes:
+
+* update Mix.install location by andyl
+
 ## v0.0.2 (2026-04-07)
 
 
