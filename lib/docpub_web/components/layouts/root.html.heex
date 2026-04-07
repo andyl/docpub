@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="Docpub" suffix=" · Phoenix Framework">
+    <link rel="icon" type="image/svg+xml" href={~p"/favicon.svg"} />
+    <.live_title default="Docpub" suffix=" · Docpub">
       {assigns[:page_title]}
     </.live_title>
     <link rel="stylesheet" href={~p"/assets/css/app.css?v=#{System.system_time(:second)}"} />
