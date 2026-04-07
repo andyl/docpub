@@ -37,7 +37,7 @@ defmodule DocpubWeb.VaultLive do
   @impl true
   def handle_params(%{"path" => path_parts}, _uri, socket) do
     relative_path = Path.join(path_parts)
-    socket = load_document(socket, relative_path)
+    socket = socket |> load_document(relative_path) |> assign(sidebar_open: false)
     {:noreply, socket}
   end
 
