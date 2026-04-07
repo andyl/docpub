@@ -1,7 +1,12 @@
 #!/usr/bin/env bash 
 
+# update assets 
 mix assets.deploy 
 git add .
 git commit -am'chore: update assets' 
 
+# release and push 
 mix git_ops.release --yes && git push --follow-tags
+
+# update servers
+docpub_update
