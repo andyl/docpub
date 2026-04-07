@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.4 (2026-04-07)
+
+
+
+
+### Bug Fixes:
+
+* sidebar toggle for narrow screens by andyl
+
 ## v0.1.3 (2026-04-07)
 
 
