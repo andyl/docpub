@@ -5,6 +5,17 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.2 (2026-04-07)
+
+
+
+
+### Bug Fixes:
+
+* change 'Docpub Login' to 'Login' by andyl
+
+* update release script by andyl
+
 ## v0.1.1 (2026-04-07)
 
 
