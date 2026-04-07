@@ -83,22 +83,16 @@ defmodule Mix.Tasks.Docpub.Serve do
       Application.put_env(:docpub, :auth_password, password)
     end
 
-    if opts[:port] || opts[:host] do
+    # Set PORT env var so config/runtime.exs (which runs when the app starts,
+    # after this task) picks it up instead of overwriting our Application.put_env.
+    if opts[:port] do
+      System.put_env("PORT", to_string(opts[:port]))
+    end
+
+    if opts[:host] do
       endpoint_config = Application.get_env(:docpub, DocpubWeb.Endpoint, [])
       http_config = Keyword.get(endpoint_config, :http, [])
-
-      http_config =
-        http_config
-        |> then(fn c -> if opts[:port], do: Keyword.put(c, :port, opts[:port]), else: c end)
-        |> then(fn c ->
-          if opts[:host] do
-            ip = parse_ip(opts[:host])
-            Keyword.put(c, :ip, ip)
-          else
-            c
-          end
-        end)
-
+      http_config = Keyword.put(http_config, :ip, parse_ip(opts[:host]))
       endpoint_config = Keyword.put(endpoint_config, :http, http_config)
       Application.put_env(:docpub, DocpubWeb.Endpoint, endpoint_config)
     end
