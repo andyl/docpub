@@ -1,11 +1,6 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 
-# update assets 
-mix assets.deploy 
-git add .
-git commit -am'chore: update assets' 
-
-# release and push 
+# tag and push release
 mix git_ops.release --yes && git push --follow-tags
 
 # update servers

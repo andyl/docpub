@@ -30,12 +30,6 @@ defmodule Mix.Tasks.Docpub.Serve do
       mix docpub.serve ~/my-vault --password secret
       mix docpub.serve ~/my-vault --initial-page README
       mix docpub.serve ~/my-vault --title "My Notes"
-
-  ## See also
-
-  A standalone Elixir script (`scripts/docpub_serve`) is also provided
-  that exposes the same command-line interface via `Mix.install/2`,
-  for use outside of a checked-out project.
   """
   use Mix.Task
 

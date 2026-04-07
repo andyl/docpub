@@ -2,11 +2,8 @@ defmodule Docpub.Server do
   @moduledoc """
   Shared launcher logic for the Docpub vault viewer server.
 
-  Used by both `Mix.Tasks.Docpub.Serve` and the standalone
-  `scripts/docpub_serve` Elixir script. Pure data — does not
-  start the OTP application itself, so it can be called from
-  contexts where the start procedure differs (Mix task vs.
-  `Mix.install` script).
+  Used by `Mix.Tasks.Docpub.Serve`. Pure data — does not start
+  the OTP application itself.
   """
 
   @switches [
