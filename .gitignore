@@ -25,11 +25,11 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 docpub-*.tar
 
-# Ignore assets that are produced by build tools.
-/priv/static/assets/
-
-# Ignore digested assets cache.
-/priv/static/cache_manifest.json
+# Built assets (priv/static/assets/) and the digest manifest are
+# intentionally NOT ignored: scripts/docpub_serve fetches docpub via
+# Mix.install from GitHub, so the compiled CSS/JS must be present in
+# the repo for the standalone launcher to serve styles correctly.
+# Run `mix assets.deploy` before committing release artifacts.
 
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
