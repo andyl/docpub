@@ -5,6 +5,25 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.0.2 (2026-04-07)
+
+
+
+
+### Bug Fixes:
+
+* refactor command-line arguments by andyl
+
+* consolidate auth options by andyl
+
+* set default page to / by andyl
+
+* mobile breakpoints by andyl
+
+* remove mailer by andyl
+
+* parse port flag by andyl
+
 ## v0.0.1 (2026-04-07)
 
 
