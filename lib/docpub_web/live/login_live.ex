@@ -14,7 +14,7 @@ defmodule DocpubWeb.LoginLive do
         <div class="card w-full max-w-sm bg-base-200 shadow-xl">
           <div class="card-body">
             <h2 class="card-title justify-center">
-              <.icon name="hero-lock-closed" class="size-6" /> Docpub Login
+              <.icon name="hero-lock-closed" class="size-6" /> Login
             </h2>
             <.form for={@form} phx-submit="login" class="space-y-4 mt-4">
               <.input field={@form[:password]} type="password" label="Password" required />
