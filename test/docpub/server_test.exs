@@ -32,6 +32,13 @@ defmodule Docpub.ServerTest do
       assert opts[:port] == 8080
       assert opts[:host] == "0.0.0.0"
     end
+
+    test "parses --title" do
+      assert {:run, opts, ["/tmp/vault"]} =
+               Server.parse_args(["/tmp/vault", "--title", "My Notes"])
+
+      assert opts[:title] == "My Notes"
+    end
   end
 
   describe "configure/2" do
@@ -49,6 +56,20 @@ defmodule Docpub.ServerTest do
       tmp = System.tmp_dir!()
       assert {:ok, info} = Server.configure([], [tmp])
       assert info.vault_path == Path.expand(tmp)
+    end
+
+    test "defaults the title to Docpub" do
+      tmp = System.tmp_dir!()
+      assert {:ok, info} = Server.configure([], [tmp])
+      assert info.title == "Docpub"
+      assert Application.get_env(:docpub, :title) == "Docpub"
+    end
+
+    test "honors a custom --title" do
+      tmp = System.tmp_dir!()
+      assert {:ok, info} = Server.configure([title: "My Notes"], [tmp])
+      assert info.title == "My Notes"
+      assert Application.get_env(:docpub, :title) == "My Notes"
     end
   end
 end

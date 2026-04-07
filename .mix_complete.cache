@@ -10,6 +10,9 @@ assets.deploy	Alias defined in mix.exs
 assets.setup	Alias defined in mix.exs
 clean	Deletes generated application files
 cmd	Executes the given command
+commit_hook.disable	Disable the Conventional Commits commit-msg hook
+commit_hook.enable	Enable the Conventional Commits commit-msg hook
+commit_hook.info	Show valid fields for a Convtional Commit message
 compile	Compiles source files
 complete	Cache tab completions for mix
 complete.bash	Output bash completion source for mix
@@ -22,6 +25,7 @@ deps.tree	Prints the dependency tree
 deps.unlock	Unlocks the given dependencies
 deps.update	Updates the given dependencies
 do	Executes the tasks separated by plus
+docpub.serve	Starts the Docpub vault viewer server
 esbuild	Invokes esbuild with the profile and args
 esbuild.install	Installs esbuild under _build
 escript	Lists installed escripts
@@ -126,7 +130,6 @@ release.init	Generates sample files for releases
 run	Runs the current application
 rustler_precompiled.download	Download precompiled NIFs and build the checksums
 setup	Alias defined in mix.exs
-swoosh.mailbox.server	Starts the mailbox preview server
 tableau.new	Generate a new Tableau website
 tailwind	Invokes tailwind with the profile and args
 tailwind.install	Installs Tailwind executable

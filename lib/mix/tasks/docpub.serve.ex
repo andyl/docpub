@@ -17,6 +17,7 @@ defmodule Mix.Tasks.Docpub.Serve do
     * `--host` - Host to bind to (default: 127.0.0.1)
     * `--password` - Require password authentication (open access if omitted)
     * `--initial-page` - Initial page to display (e.g., `README`)
+    * `--title` - Site title shown in the header and browser tab (default: `Docpub`)
     * `--help` - Show this help message
     * `--version` - Show version
 
@@ -28,6 +29,7 @@ defmodule Mix.Tasks.Docpub.Serve do
       mix docpub.serve ~/my-vault --host 0.0.0.0 --port 8080
       mix docpub.serve ~/my-vault --password secret
       mix docpub.serve ~/my-vault --initial-page README
+      mix docpub.serve ~/my-vault --title "My Notes"
 
   ## See also
 

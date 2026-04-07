@@ -26,11 +26,13 @@ defmodule DocpubWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
+    assigns = assign_new(assigns, :site_title, fn -> Docpub.Server.title() end)
+
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8 h-14 min-h-0 border-b border-base-300 bg-base-100">
       <div class="flex-1">
         <a href="/" class="flex items-center gap-2 text-lg font-bold">
-          <.icon name="hero-book-open" class="size-5 text-primary" /> Docpub
+          <.icon name="hero-book-open" class="size-5 text-primary" />{@site_title}
         </a>
       </div>
     </header>

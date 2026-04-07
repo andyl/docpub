@@ -27,7 +27,7 @@ defmodule DocpubWeb.VaultLive do
        search_query: "",
        search_results: nil,
        last_visited: last_visited,
-       page_title: "Docpub",
+       page_title: "Home",
        doc_type: nil,
        new_file_name: "",
        expanded_folders: MapSet.new()

@@ -14,9 +14,21 @@ defmodule Docpub.Server do
     host: :string,
     password: :string,
     initial_page: :string,
+    title: :string,
     help: :boolean,
     version: :boolean
   ]
+
+  @default_title "Docpub"
+
+  @doc "Returns the default site title."
+  def default_title, do: @default_title
+
+  @doc """
+  Returns the configured site title, falling back to the default
+  (`#{@default_title}`) when none has been set.
+  """
+  def title, do: Application.get_env(:docpub, :title) || @default_title
 
   @doc "Returns the OptionParser switches used by the CLI."
   def switches, do: @switches
@@ -58,6 +70,7 @@ defmodule Docpub.Server do
          {:ok, ip} <- maybe_parse_ip(opts[:host]) do
       Application.put_env(:docpub, :vault_path, vault_path)
       Application.put_env(:docpub, :password, opts[:password])
+      Application.put_env(:docpub, :title, opts[:title] || @default_title)
 
       if opts[:initial_page] do
         Application.put_env(:docpub, :initial_page, opts[:initial_page])
@@ -75,7 +88,8 @@ defmodule Docpub.Server do
          vault_path: vault_path,
          host: opts[:host] || "localhost",
          port: opts[:port] || 4000,
-         password: opts[:password] != nil
+         password: opts[:password] != nil,
+         title: opts[:title] || @default_title
        }}
     end
   end
