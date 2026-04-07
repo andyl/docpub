@@ -7,8 +7,8 @@
     <.live_title default="Docpub" suffix=" · Phoenix Framework">
       {assigns[:page_title]}
     </.live_title>
-    <link phx-track-static rel="stylesheet" href={"#{~p"/assets/css/app.css"}?vsn=#{DocpubWeb.Layouts.asset_vsn()}"} />
-    <script defer phx-track-static type="text/javascript" src={"#{~p"/assets/js/app.js"}?vsn=#{DocpubWeb.Layouts.asset_vsn()}"}>
+    <link rel="stylesheet" href={~p"/assets/css/app.css?v=#{System.system_time(:second)}"} />
+    <script defer type="text/javascript" src={~p"/assets/js/app.js?v=#{System.system_time(:second)}"}>
     </script>
     <script>
       (() => {

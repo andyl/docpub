@@ -187,8 +187,7 @@
                   name="content"
                   class="textarea textarea-bordered w-full font-mono text-sm leading-relaxed"
                   rows="30"
-                  phx-no-curly-interpolation
-                >{@raw_content}</textarea>
+                ><%= @raw_content %></textarea>
               </form>
             </div>
           <% @doc_type == :markdown and @mode == :view -> %>
