@@ -104,7 +104,8 @@ end
 
 Mix.install(
   [
-    {:docpub, path: docpub_path}
+    # {:docpub, path: docpub_path}
+    {:docpub, github: "andyl/docpub"}
   ],
   config: [
     phoenix: [json_library: Jason],
