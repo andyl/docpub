@@ -54,6 +54,8 @@ defmodule Docpub.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:commit_hook, "~> 0.5"},
+      {:git_ops, "~> 2.0", only: [:dev], runtime: false},
       {:tidewave, "~> 0.5", only: [:dev]},
       {:usage_rules, "~> 1.0", only: [:dev]},
       {:igniter, "~> 0.6", only: [:dev, :test]},
@@ -81,7 +83,7 @@ defmodule Docpub.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:mdex, "~> 0.6"},
-      {:file_system, "~> 1.0"},
+      {:file_system, "~> 1.0"}
     ]
   end
 
