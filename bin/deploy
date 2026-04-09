@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
-echo "----- tag and push release"
-mix git_ops.release --yes && git push --follow-tags
+# rebuild and deploy the app
 
-echo "----- update servers"
-docpub_update
+echo "----- tag release"
+mix git_ops.release --yes    && \
+echo "----- push release"    && \
+git push --follow-tags       && \
+echo "----- build release"   && \
+MIX_ENV=prod mix release     && \ 
+echo "----- deploy release"  && \
+MIX_ENV=prod mix sysd.deploy
