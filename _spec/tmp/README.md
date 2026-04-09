@@ -6,10 +6,13 @@ week or so.
 After reading Mike Hostetler's "Specled" initiative, I hacked my own "Spec Led"
 system.  This is quick and dirty!  At some point probably I'll migrate to
 Mike's system.  But so far I find my quick-hack approach very useful.  Over the
-last month I've used this spec-led in a half-dozen projects - never going back.
+last month I've used this spec-led system in a half-dozen projects. Never
+going back.
 
-Both of the 'commands' in this directory should be put into the
-~/.claude/commands directory.  
+This system works in Claude Code.  Both of the 'commands' (`gen-feat.md`,
+`gen-plan.md`) in this directory should be put into the `~/.claude/commands`
+directory.  After that, both `/gen-feat` and `/gen-plan` will be available in
+the Claude TUI.
 
 It's a two part system:
 1) `/gen-feat` - create a feature specification
