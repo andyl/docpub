@@ -5,6 +5,17 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.5 (2026-04-09)
+
+
+
+
+### Bug Fixes:
+
+* add a deploy script by andyl
+
+* add sysd by andyl
+
 ## v0.1.4 (2026-04-07)
 
 
