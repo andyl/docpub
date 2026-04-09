@@ -12,6 +12,12 @@ defmodule Docpub.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      releases: [
+        feedex: [
+          steps: [:assemble, :tar],
+          include_executables_for: [:unix]
+        ]
+      ],
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
       usage_rules: usage_rules()
