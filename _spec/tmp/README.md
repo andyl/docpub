@@ -18,5 +18,21 @@ It's a two part system:
 For step 1), sometimes I write a one-paragraph design right in the claude TUI.
 Sometimes I write a design file, then tell claude "/gen-feat @MyDesignFile"
 
+I store the specs in the project repo, and check them into git using this
+directory structure:
+
+```
+_spec/
+  designs/
+    YYMMDD_<design_doc>.md
+    ...
+  features/
+    YYMMDD_<feature spec>.md
+    ...
+  plans/
+    YYMMDD_<implementation plan>.md
+    ...
+```
+
 I have got into the habit of prefixing the _spec files with YYMMDD so I know
 the order in which they were created.
