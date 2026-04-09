@@ -3,10 +3,10 @@
 # rebuild and deploy the app
 
 echo "----- tag release"
-mix git_ops.release --yes    && \
-echo "----- push release"    && \
-git push --follow-tags       && \
-echo "----- build release"   && \
-MIX_ENV=prod mix release     && \ 
-echo "----- deploy release"  && \
+mix git_ops.release --yes             && \
+echo "----- push release"             && \
+git push --follow-tags                && \
+echo "----- build release"            && \
+MIX_ENV=prod mix release --overwrite  && \ 
+echo "----- deploy release"           && \
 MIX_ENV=prod mix sysd.deploy

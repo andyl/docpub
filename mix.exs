@@ -13,7 +13,7 @@ defmodule Docpub.MixProject do
       aliases: aliases(),
       deps: deps(),
       releases: [
-        feedex: [
+        docpub: [
           steps: [:assemble, :tar],
           include_executables_for: [:unix]
         ]
