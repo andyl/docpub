@@ -1,0 +1,15 @@
+[Unit]
+Description=docpub
+After=network.target
+
+[Service]
+Type=simple
+User=aleak
+Environment=PHX_SERVER=true
+ExecStart=/opt/sysd/docpub/current/bin/docpub start
+ExecStop=/opt/sysd/docpub/current/bin/docpub stop
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
