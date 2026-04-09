@@ -21,6 +21,22 @@ defmodule Mix.Tasks.Docpub.Serve do
     * `--help` - Show this help message
     * `--version` - Show version
 
+  ## Environment Variables
+
+  Every option can also be set via an environment variable. CLI flags
+  take precedence when both are provided.
+
+    * `DOCPUB_PATH` - Vault path (replaces the positional argument)
+    * `DOCPUB_PORT` - Port to listen on
+    * `DOCPUB_HOST` - Host to bind to
+    * `DOCPUB_PASSWORD` - Require password authentication
+    * `DOCPUB_INITIAL_PAGE` - Initial page to display
+    * `DOCPUB_TITLE` - Site title
+
+  These variables are also read by `config/runtime.exs`, so they work
+  with Elixir releases started via `bin/docpub start` (e.g. from a
+  systemd unit file).
+
   ## Examples
 
       mix docpub.serve .
@@ -30,6 +46,9 @@ defmodule Mix.Tasks.Docpub.Serve do
       mix docpub.serve ~/my-vault --password secret
       mix docpub.serve ~/my-vault --initial-page README
       mix docpub.serve ~/my-vault --title "My Notes"
+
+      # Using environment variables (useful in systemd units):
+      DOCPUB_PATH=/srv/vault DOCPUB_PORT=8080 mix docpub.serve
   """
   use Mix.Task
 

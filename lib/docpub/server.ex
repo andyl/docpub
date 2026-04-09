@@ -50,9 +50,34 @@ defmodule Docpub.Server do
     cond do
       opts[:help] -> :help
       opts[:version] -> :version
-      positional == [] -> :help
+      positional == [] and has_no_env_path?() -> :help
       true -> {:run, opts, positional}
     end
+  end
+
+  @doc """
+  Merges CLI options with `DOCPUB_*` environment variables.
+
+  CLI flags take precedence; environment variables serve as fallbacks.
+  Recognised env vars: `DOCPUB_PATH`, `DOCPUB_PORT`, `DOCPUB_HOST`,
+  `DOCPUB_PASSWORD`, `DOCPUB_INITIAL_PAGE`, `DOCPUB_TITLE`.
+  """
+  def merge_env(opts, positional) do
+    opts =
+      opts
+      |> env_fallback(:port, "DOCPUB_PORT", &String.to_integer/1)
+      |> env_fallback(:host, "DOCPUB_HOST")
+      |> env_fallback(:password, "DOCPUB_PASSWORD")
+      |> env_fallback(:initial_page, "DOCPUB_INITIAL_PAGE")
+      |> env_fallback(:title, "DOCPUB_TITLE")
+
+    positional =
+      case {positional, System.get_env("DOCPUB_PATH")} do
+        {[], path} when is_binary(path) and path != "" -> [path]
+        _ -> positional
+      end
+
+    {opts, positional}
   end
 
   @doc """
@@ -63,6 +88,8 @@ defmodule Docpub.Server do
   `{:error, message}` on validation failure.
   """
   def configure(opts, positional) do
+    {opts, positional} = merge_env(opts, positional)
+
     with {:ok, vault_path} <- resolve_vault_path(positional),
          {:ok, ip} <- maybe_parse_ip(opts[:host]) do
       Application.put_env(:docpub, :vault_path, vault_path)
@@ -76,6 +103,9 @@ defmodule Docpub.Server do
       update_endpoint(fn config ->
         config
         |> Keyword.put(:server, true)
+        |> Keyword.put(:secret_key_base, Base.encode64(:crypto.strong_rand_bytes(64)))
+        |> Keyword.put(:url, [host: "localhost", port: opts[:port] || 4000, scheme: "http"])
+        |> Keyword.delete(:force_ssl)
         |> maybe_put_http(:port, opts[:port])
         |> maybe_put_http(:ip, ip)
       end)
@@ -125,5 +155,25 @@ defmodule Docpub.Server do
   defp maybe_put_http(config, key, value) do
     http = config |> Keyword.get(:http, []) |> Keyword.put(key, value)
     Keyword.put(config, :http, http)
+  end
+
+  defp has_no_env_path? do
+    case System.get_env("DOCPUB_PATH") do
+      nil -> true
+      "" -> true
+      _ -> false
+    end
+  end
+
+  defp env_fallback(opts, key, var, transform \\ & &1) do
+    if opts[key] do
+      opts
+    else
+      case System.get_env(var) do
+        nil -> opts
+        "" -> opts
+        val -> Keyword.put(opts, key, transform.(val))
+      end
+    end
   end
 end

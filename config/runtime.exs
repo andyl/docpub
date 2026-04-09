@@ -20,8 +20,31 @@ if System.get_env("PHX_SERVER") do
   config :docpub, DocpubWeb.Endpoint, server: true
 end
 
+# DOCPUB_PORT takes precedence over PORT for the HTTP listener.
+port = System.get_env("DOCPUB_PORT") || System.get_env("PORT") || "4000"
+
 config :docpub, DocpubWeb.Endpoint,
-  http: [port: String.to_integer(System.get_env("PORT", "4000"))]
+  http: [port: String.to_integer(port)]
+
+# DOCPUB_* environment variables — used primarily by releases started
+# via `bin/docpub start` (e.g. from a systemd unit file).  When running
+# under `mix docpub.serve`, the mix task's configure/2 reads these same
+# vars, so they work in both contexts.
+if vault_path = System.get_env("DOCPUB_PATH") do
+  config :docpub, :vault_path, vault_path
+end
+
+if title = System.get_env("DOCPUB_TITLE") do
+  config :docpub, :title, title
+end
+
+if password = System.get_env("DOCPUB_PASSWORD") do
+  config :docpub, :password, password
+end
+
+if initial_page = System.get_env("DOCPUB_INITIAL_PAGE") do
+  config :docpub, :initial_page, initial_page
+end
 
 if config_env() == :prod do
   # The secret key base is used to sign/encrypt cookies and other secrets.
@@ -29,12 +52,12 @@ if config_env() == :prod do
   # want to use a different value for prod and you most likely don't want
   # to check this value into version control, so we use an environment
   # variable instead.
+  #
+  # When running locally via `mix docpub.serve`, a random key is generated
+  # automatically so the user doesn't need to set SECRET_KEY_BASE.
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
+      Base.encode64(:crypto.strong_rand_bytes(64))
 
   host = System.get_env("PHX_HOST") || "example.com"
 
