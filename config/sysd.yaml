@@ -1,7 +1,7 @@
 servers:
   - host: capp
     instances: 
-      - instance_name: checkdown 
+      - instance_name: docpub
         environment_variables:
           DOCPUB_PATH: ~/util/org 
           DOCPUB_PORT: 9090 
@@ -10,7 +10,7 @@ servers:
           DOCPUB_INITIAL_PAGE: OrgMOC
   - host: cpub
     instances: 
-      - instance_name: checkdown 
+      - instance_name: docpub
         environment_variables:
           DOCPUB_PATH: ~/util/org/notes/Fam/Mom/Spring26
           DOCPUB_PORT: 1234 
