@@ -59,12 +59,12 @@ if config_env() == :prod do
     System.get_env("SECRET_KEY_BASE") ||
       Base.encode64(:crypto.strong_rand_bytes(64))
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  # host = System.get_env("PHX_HOST") || "example.com"
 
   config :docpub, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :docpub, DocpubWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
+    url: [scheme: "http"],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
