@@ -30,6 +30,7 @@ config :docpub, DocpubWeb.Endpoint, http: [port: String.to_integer(port)]
 # under `mix docpub.serve`, the mix task's configure/2 reads these same
 # vars, so they work in both contexts.
 if vault_path = System.get_env("DOCPUB_PATH") do
+  vault_path = Path.expand(vault_path)
   config :docpub, :vault_path, vault_path
 end
 
