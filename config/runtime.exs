@@ -64,6 +64,7 @@ if config_env() == :prod do
 
   endpoint_config = [
     url: [scheme: "http", host: host || "localhost"],
+    check_origin: false,
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
