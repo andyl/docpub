@@ -1,5 +1,22 @@
 servers:
-  - capp 
-  - cpub
+  - host: capp
+    instances: 
+      - instance_name: checkdown 
+        environment_variables:
+          DOCPUB_PATH: ~/util/org 
+          DOCPUB_PORT: 9090 
+          DOCPUB_HOST: 0.0.0.0
+          DOCPUB_TITLE: Org 
+          DOCPUB_INITIAL_PAGE: OrgMOC
+  - host: cpub
+    instances: 
+      - instance_name: checkdown 
+        environment_variables:
+          DOCPUB_PATH: ~/util/org/notes/Fam/Mom/Spring26
+          DOCPUB_PORT: 1234 
+          DOCPUB_HOST: 0.0.0.0
+          DOCPUB_TITLE: Spring26
+          DOCPUB_PASSWORD: golden 
+          DOCPUB_INITIAL_PAGE: Spring26MOC
 ssh:
   user: aleak
