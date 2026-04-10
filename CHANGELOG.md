@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.15 (2026-04-10)
+
+
+
+
+### Bug Fixes:
+
+* expand ~ in DOCPUB_PATH for systemd environments by andyl
+
 ## v0.1.14 (2026-04-10)
 
 
