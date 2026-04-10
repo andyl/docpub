@@ -6,6 +6,8 @@ echo "----- tag release"
 mix git_ops.release --yes             && \
 echo "----- push release"             && \
 git push --follow-tags                && \
+echo "----- rebuild assets"           && \
+mix assets.deploy                     && \ 
 echo "----- build release"            && \
 MIX_ENV=prod mix release --overwrite  && \ 
 echo "----- deploy release"           && \
