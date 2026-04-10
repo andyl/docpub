@@ -23,8 +23,7 @@ end
 # DOCPUB_PORT takes precedence over PORT for the HTTP listener.
 port = System.get_env("DOCPUB_PORT") || System.get_env("PORT") || "4000"
 
-config :docpub, DocpubWeb.Endpoint,
-  http: [port: String.to_integer(port)]
+config :docpub, DocpubWeb.Endpoint, http: [port: String.to_integer(port)]
 
 # DOCPUB_* environment variables — used primarily by releases started
 # via `bin/docpub start` (e.g. from a systemd unit file).  When running
@@ -59,12 +58,12 @@ if config_env() == :prod do
     System.get_env("SECRET_KEY_BASE") ||
       Base.encode64(:crypto.strong_rand_bytes(64))
 
-  # host = System.get_env("PHX_HOST") || "example.com"
+  host = System.get_env("DOCPUB_HOST") || System.get_env("PHX_HOST")
 
   config :docpub, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
-  config :docpub, DocpubWeb.Endpoint,
-    url: [scheme: "http"],
+  endpoint_config = [
+    url: [scheme: "http", host: host || "localhost"],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
@@ -73,6 +72,18 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0}
     ],
     secret_key_base: secret_key_base
+  ]
+
+  # When DOCPUB_HOST is set, disable force_ssl so Plug.SSL doesn't
+  # redirect to https for the configured host.
+  endpoint_config =
+    if host do
+      Keyword.put(endpoint_config, :force_ssl, false)
+    else
+      endpoint_config
+    end
+
+  config :docpub, DocpubWeb.Endpoint, endpoint_config
 
   # ## SSL Support
   #
