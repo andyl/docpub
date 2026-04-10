@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.11 (2026-04-10)
+
+
+
+
+### Bug Fixes:
+
+* read DOCPUB_HOST in runtime.exs and disable force_ssl by andyl
+
 ## v0.1.10 (2026-04-10)
 
 
