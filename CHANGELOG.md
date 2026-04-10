@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.14 (2026-04-10)
+
+
+
+
+### Bug Fixes:
+
+* disable WebSocket origin check for proxied deployments by andyl
+
 ## v0.1.13 (2026-04-10)
 
 
