@@ -25,6 +25,7 @@ defmodule DocpubWeb.Endpoint do
     from: :docpub,
     gzip: not code_reloading?,
     only: DocpubWeb.static_paths(),
+    only_matching: ~w(favicon),
     raise_on_missing_only: code_reloading?
 
   if Mix.env() == :dev do
