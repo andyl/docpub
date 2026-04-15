@@ -8,6 +8,7 @@ defmodule DocpubWeb.Router do
     plug :put_root_layout, html: {DocpubWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug DocpubWeb.Plugs.WhatsNew
   end
 
   pipeline :vault_auth do

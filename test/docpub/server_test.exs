@@ -178,7 +178,8 @@ defmodule Docpub.ServerTest do
     test "configures from DOCPUB_* env vars" do
       tmp = System.tmp_dir!()
 
-      with_env(%{"DOCPUB_PATH" => tmp, "DOCPUB_TITLE" => "Env Title", "DOCPUB_PORT" => "9999"},
+      with_env(
+        %{"DOCPUB_PATH" => tmp, "DOCPUB_TITLE" => "Env Title", "DOCPUB_PORT" => "9999"},
         fn ->
           assert {:ok, info} = Server.configure([], [])
           assert info.vault_path == Path.expand(tmp)

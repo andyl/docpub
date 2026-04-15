@@ -104,7 +104,7 @@ defmodule Docpub.Server do
         config
         |> Keyword.put(:server, true)
         |> Keyword.put(:secret_key_base, Base.encode64(:crypto.strong_rand_bytes(64)))
-        |> Keyword.put(:url, [host: "localhost", port: opts[:port] || 4000, scheme: "http"])
+        |> Keyword.put(:url, host: "localhost", port: opts[:port] || 4000, scheme: "http")
         |> Keyword.delete(:force_ssl)
         |> maybe_put_http(:port, opts[:port])
         |> maybe_put_http(:ip, ip)

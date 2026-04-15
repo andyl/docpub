@@ -13,6 +13,7 @@ defmodule Docpub.Application do
         {DNSCluster, query: Application.get_env(:docpub, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: Docpub.PubSub},
         Docpub.VaultWatcher,
+        Docpub.WhatsNew.Cache,
         DocpubWeb.Endpoint
       ]
 
