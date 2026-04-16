@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.23 (2026-04-16)
+
+
+
+
+### Bug Fixes:
+
+* handle git subtrees by andyl
+
 ## v0.1.22 (2026-04-16)
 
 
