@@ -469,66 +469,18 @@ defmodule DocpubWeb.CoreComponents do
   end
 
   @doc """
-  Renders the What's New global toast.
-
-  Renders only when the summary describes one or more changed files and the
-  user has not dismissed the toast in this session. Cookie state is untouched
-  by the dismiss action — that's left to the mark-as-read POST.
-  """
-  attr :summary, :map, required: true
-  attr :dismissed, :boolean, default: false
-  attr :redirect_to, :string, default: "/"
-
-  def whats_new_toast(assigns) do
-    ~H"""
-    <div
-      :if={whats_new_visible?(@summary, @dismissed)}
-      id="whats-new-toast"
-      role="status"
-      aria-live="polite"
-      class="toast toast-top toast-end max-md:toast-bottom max-md:toast-center z-50"
-    >
-      <div class="alert alert-info w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap">
-        <.icon name="hero-sparkles" class="size-5 shrink-0" />
-        <div class="flex-1">
-          <p class="font-semibold">{whats_new_toast_title(@summary)}</p>
-          <p class="text-xs opacity-80">{whats_new_counts_text(@summary)}</p>
-        </div>
-        <form method="post" action="/whats-new/mark-read" class="contents">
-          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
-          <input type="hidden" name="redirect_to" value={@redirect_to} />
-          <button type="submit" class="btn btn-xs btn-ghost" aria-label="Mark all changes as read">
-            Mark all read
-          </button>
-        </form>
-        <button
-          type="button"
-          phx-click="whats_new_dismiss"
-          class="btn btn-xs btn-ghost"
-          aria-label="Dismiss what's new toast"
-        >
-          <.icon name="hero-x-mark" class="size-4" />
-        </button>
-      </div>
-    </div>
-    """
-  end
-
-  @doc """
   Renders the per-document What's New banner above markdown content.
 
   Renders only when `current_path` matches a file in the summary's change set.
   """
-  attr :summary, :map, required: true
+  attr :file_change, :map, default: nil
   attr :current_path, :string, default: nil
+  attr :show, :boolean, default: false
 
   def whats_new_banner(assigns) do
-    file_change = whats_new_file_change(assigns.summary, assigns.current_path)
-    assigns = assign(assigns, :file_change, file_change)
-
     ~H"""
     <section
-      :if={@file_change}
+      :if={@show and @file_change}
       id="whats-new-banner"
       role="region"
       aria-label="What's new for this document"
@@ -553,11 +505,11 @@ defmodule DocpubWeb.CoreComponents do
       </div>
       <button
         type="button"
-        phx-click="whats_new_mark_file_read"
+        phx-click="whats_new_close"
         phx-value-path={@current_path}
         class="btn btn-xs btn-ghost"
       >
-        Mark as read
+        Close
       </button>
     </section>
     """
@@ -581,35 +533,6 @@ defmodule DocpubWeb.CoreComponents do
     />
     """
   end
-
-  defp whats_new_visible?(%{kind: :diff, files: [_ | _]}, false), do: true
-  defp whats_new_visible?(_summary, _dismissed), do: false
-
-  defp whats_new_toast_title(%{counts: counts}) do
-    total = counts.added + counts.modified + counts.renamed + counts.deleted
-    "#{total} #{pluralize(total, "file")} changed since your last visit"
-  end
-
-  defp whats_new_counts_text(%{counts: c}) do
-    [
-      c.added > 0 && "#{c.added} added",
-      c.modified > 0 && "#{c.modified} modified",
-      c.renamed > 0 && "#{c.renamed} renamed",
-      c.deleted > 0 && "#{c.deleted} deleted"
-    ]
-    |> Enum.filter(& &1)
-    |> Enum.join(" · ")
-  end
-
-  defp pluralize(1, word), do: word
-  defp pluralize(_, word), do: word <> "s"
-
-  defp whats_new_file_change(%{kind: :diff, files: files}, current_path)
-       when is_binary(current_path) do
-    Enum.find(files, fn fc -> fc.path == current_path end)
-  end
-
-  defp whats_new_file_change(_summary, _path), do: nil
 
   defp whats_new_kind_label(:added), do: "Added"
   defp whats_new_kind_label(:modified), do: "Updated"

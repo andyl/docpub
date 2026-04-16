@@ -38,7 +38,10 @@ defmodule DocpubWeb.VaultLive do
        whats_new_summary: summary,
        whats_new_paths: paths,
        whats_new_folders: folders,
-       whats_new_kinds: kinds
+       whats_new_kinds: kinds,
+       whats_new_read: MapSet.new(),
+       whats_new_show_banner: false,
+       whats_new_file_change: nil
      )}
   end
 
@@ -114,8 +117,20 @@ defmodule DocpubWeb.VaultLive do
       :markdown ->
         case Vault.read_file(vault_path, actual_path) do
           {:ok, content} ->
+            first_view = not MapSet.member?(socket.assigns.whats_new_read, actual_path)
+            is_changed = MapSet.member?(socket.assigns.whats_new_paths, actual_path)
+            show_marks = first_view and is_changed
+
             current_dir = Path.dirname(actual_path)
-            line_marks = whats_new_line_marks(socket, actual_path)
+            line_marks = if show_marks, do: whats_new_line_marks(socket, actual_path), else: []
+            file_change = if show_marks, do: whats_new_file_change(socket, actual_path), else: nil
+
+            socket =
+              if is_changed do
+                mark_file_read(socket, actual_path)
+              else
+                socket
+              end
 
             {:ok, html} =
               Markdown.render(content,
@@ -136,7 +151,9 @@ defmodule DocpubWeb.VaultLive do
               page_title: Path.basename(actual_path, ".md"),
               doc_type: :markdown,
               search_results: nil,
-              expanded_folders: expanded
+              expanded_folders: expanded,
+              whats_new_show_banner: show_marks,
+              whats_new_file_change: file_change
             )
 
           {:error, _} ->
@@ -223,6 +240,31 @@ defmodule DocpubWeb.VaultLive do
       ext in ~w(.pdf) -> :pdf
       true -> :other
     end
+  end
+
+  defp whats_new_file_change(socket, path) do
+    summary = socket.assigns.whats_new_summary
+    if summary.kind == :diff, do: Enum.find(summary.files, &(&1.path == path)), else: nil
+  end
+
+  defp mark_file_read(socket, path) do
+    paths = MapSet.delete(socket.assigns.whats_new_paths, path)
+    kinds = Map.delete(socket.assigns.whats_new_kinds, path)
+
+    folders =
+      socket.assigns.whats_new_folders
+      |> Enum.filter(fn folder -> Enum.any?(paths, &String.starts_with?(&1, folder <> "/")) end)
+      |> MapSet.new()
+
+    summary = %{socket.assigns.whats_new_summary | files: Enum.reject(socket.assigns.whats_new_summary.files, &(&1.path == path))}
+
+    assign(socket,
+      whats_new_paths: paths,
+      whats_new_kinds: kinds,
+      whats_new_folders: folders,
+      whats_new_summary: summary,
+      whats_new_read: MapSet.put(socket.assigns.whats_new_read, path)
+    )
   end
 
   defp whats_new_line_marks(socket, path) do
@@ -384,24 +426,27 @@ defmodule DocpubWeb.VaultLive do
     {:noreply, assign(socket, new_file_name: name)}
   end
 
-  def handle_event("whats_new_mark_file_read", %{"path" => path}, socket) do
-    paths = MapSet.delete(socket.assigns.whats_new_paths, path)
-    kinds = Map.delete(socket.assigns.whats_new_kinds, path)
+  def handle_event("whats_new_close", %{"path" => _path}, socket) do
+    vault_path = socket.assigns.vault_path
+    actual_path = socket.assigns.current_path
 
-    folders =
-      socket.assigns.whats_new_folders
-      |> Enum.filter(fn folder -> Enum.any?(paths, &String.starts_with?(&1, folder <> "/")) end)
-      |> MapSet.new()
+    socket = assign(socket, whats_new_show_banner: false, whats_new_file_change: nil)
 
-    summary = %{socket.assigns.whats_new_summary | files: Enum.reject(socket.assigns.whats_new_summary.files, &(&1.path == path))}
+    case Vault.read_file(vault_path, actual_path) do
+      {:ok, content} ->
+        {:ok, html} =
+          Markdown.render(content,
+            file_tree: socket.assigns.flat_tree,
+            current_dir: Path.dirname(actual_path),
+            vault_path: vault_path,
+            line_marks: []
+          )
 
-    {:noreply,
-     assign(socket,
-       whats_new_paths: paths,
-       whats_new_kinds: kinds,
-       whats_new_folders: folders,
-       whats_new_summary: summary
-     )}
+        {:noreply, assign(socket, rendered_html: html)}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true

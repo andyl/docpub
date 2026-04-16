@@ -60,22 +60,8 @@ defmodule DocpubWeb.VaultLiveWhatsNewTest do
     |> Plug.Conn.put_req_header("cookie", "#{Cookie.name()}=#{cookie}")
   end
 
-  describe "mark file read" do
-    test "removes only the current file's banner and marker", %{conn: conn, baseline: baseline} do
-      {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
-      assert has_element?(view, "#whats-new-banner")
-      assert has_element?(view, "#tree-README\\.md span[title=Updated]")
-
-      view |> element("button[phx-click=whats_new_mark_file_read]") |> render_click()
-
-      refute has_element?(view, "#whats-new-banner")
-      refute has_element?(view, "#tree-README\\.md span[title=Updated]")
-      assert has_element?(view, "#tree-subfolder span[title='Contains recent changes']")
-    end
-  end
-
   describe "banner" do
-    test "renders when current path is in the change set", %{conn: conn, baseline: baseline} do
+    test "shows on first view of changed file and includes author", %{conn: conn, baseline: baseline} do
       {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
       assert has_element?(view, "#whats-new-banner")
       assert render(view) =~ "Alice"
@@ -85,16 +71,30 @@ defmodule DocpubWeb.VaultLiveWhatsNewTest do
       {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/notes")
       refute has_element?(view, "#whats-new-banner")
     end
+
+    test "close hides banner", %{conn: conn, baseline: baseline} do
+      {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
+      assert has_element?(view, "#whats-new-banner")
+
+      view |> element("button[phx-click=whats_new_close]") |> render_click()
+
+      refute has_element?(view, "#whats-new-banner")
+    end
   end
 
   describe "sidebar markers" do
-    test "marks changed file in tree", %{conn: conn, baseline: baseline} do
+    test "marks changed file not yet visited", %{conn: conn, baseline: baseline} do
       {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/notes")
       assert has_element?(view, "#tree-README\\.md span[title=Updated]")
     end
 
-    test "marks ancestor folder when collapsed", %{conn: conn, baseline: baseline} do
+    test "visiting a changed file removes its marker", %{conn: conn, baseline: baseline} do
       {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
+      refute has_element?(view, "#tree-README\\.md span[title=Updated]")
+    end
+
+    test "marks ancestor folder when collapsed", %{conn: conn, baseline: baseline} do
+      {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/notes")
       assert has_element?(view, "#tree-subfolder span[title='Contains recent changes']")
     end
   end
