@@ -9,6 +9,7 @@ The way this is envisioned to work:
 - change bars show elements in the file that have changes
 
 For now it is difficult to envision the right user-interface for this feature.
+
 I know that I'd like to keep it simple.  Git diffs are too complex.  Change
 bars on the side of the screen seem just about right, with the ability to jump
 to next and prev change blocks.  A summary view showing all the changed
@@ -21,5 +22,3 @@ So for Phase 1, let's just focus on the required data structures:
 - how to generate the data structure from the underlying Git repo
 
 Once we have that defined and working, we'll move on to Phase 2 - What's New UI
-Probably the first step will simply be a separate '/whats_new' page that shows
-the change data structure.
