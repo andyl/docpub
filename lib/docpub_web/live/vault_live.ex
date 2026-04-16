@@ -38,8 +38,7 @@ defmodule DocpubWeb.VaultLive do
        whats_new_summary: summary,
        whats_new_paths: paths,
        whats_new_folders: folders,
-       whats_new_kinds: kinds,
-       whats_new_toast_dismissed: false
+       whats_new_kinds: kinds
      )}
   end
 
@@ -385,8 +384,24 @@ defmodule DocpubWeb.VaultLive do
     {:noreply, assign(socket, new_file_name: name)}
   end
 
-  def handle_event("whats_new_dismiss", _params, socket) do
-    {:noreply, assign(socket, whats_new_toast_dismissed: true)}
+  def handle_event("whats_new_mark_file_read", %{"path" => path}, socket) do
+    paths = MapSet.delete(socket.assigns.whats_new_paths, path)
+    kinds = Map.delete(socket.assigns.whats_new_kinds, path)
+
+    folders =
+      socket.assigns.whats_new_folders
+      |> Enum.filter(fn folder -> Enum.any?(paths, &String.starts_with?(&1, folder <> "/")) end)
+      |> MapSet.new()
+
+    summary = %{socket.assigns.whats_new_summary | files: Enum.reject(socket.assigns.whats_new_summary.files, &(&1.path == path))}
+
+    {:noreply,
+     assign(socket,
+       whats_new_paths: paths,
+       whats_new_kinds: kinds,
+       whats_new_folders: folders,
+       whats_new_summary: summary
+     )}
   end
 
   @impl true

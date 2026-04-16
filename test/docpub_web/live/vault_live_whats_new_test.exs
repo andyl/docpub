@@ -60,30 +60,17 @@ defmodule DocpubWeb.VaultLiveWhatsNewTest do
     |> Plug.Conn.put_req_header("cookie", "#{Cookie.name()}=#{cookie}")
   end
 
-  defp conn_with_no_baseline(conn) do
-    # No cookie at all -> :no_baseline summary
-    conn
-  end
-
-  describe "toast" do
-    test "renders when summary has changes", %{conn: conn, baseline: baseline} do
+  describe "mark file read" do
+    test "removes only the current file's banner and marker", %{conn: conn, baseline: baseline} do
       {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
-      assert has_element?(view, "#whats-new-toast")
-      assert render(view) =~ "files changed since your last visit"
-    end
+      assert has_element?(view, "#whats-new-banner")
+      assert has_element?(view, "#tree-README\\.md span[title=Updated]")
 
-    test "absent when summary is :no_baseline", %{conn: conn} do
-      {:ok, view, _html} = live(conn_with_no_baseline(conn), "/doc/README")
-      refute has_element?(view, "#whats-new-toast")
-    end
+      view |> element("button[phx-click=whats_new_mark_file_read]") |> render_click()
 
-    test "dismiss event hides the toast", %{conn: conn, baseline: baseline} do
-      {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
-      assert has_element?(view, "#whats-new-toast")
-
-      view |> element("button[phx-click=whats_new_dismiss]") |> render_click()
-
-      refute has_element?(view, "#whats-new-toast")
+      refute has_element?(view, "#whats-new-banner")
+      refute has_element?(view, "#tree-README\\.md span[title=Updated]")
+      assert has_element?(view, "#tree-subfolder span[title='Contains recent changes']")
     end
   end
 

@@ -23,8 +23,6 @@ defmodule DocpubWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
-  attr :whats_new_summary, :map, default: nil
-  attr :whats_new_toast_dismissed, :boolean, default: false
   attr :current_path_uri, :string, default: "/"
 
   slot :inner_block, required: true
@@ -44,13 +42,6 @@ defmodule DocpubWeb.Layouts do
     <div class="flex-1 overflow-hidden">
       {render_slot(@inner_block)}
     </div>
-
-    <.whats_new_toast
-      :if={@whats_new_summary}
-      summary={@whats_new_summary}
-      dismissed={@whats_new_toast_dismissed}
-      redirect_to={@current_path_uri}
-    />
 
     <.flash_group flash={@flash} />
     """

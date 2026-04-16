@@ -521,7 +521,6 @@ defmodule DocpubWeb.CoreComponents do
   """
   attr :summary, :map, required: true
   attr :current_path, :string, default: nil
-  attr :redirect_to, :string, default: "/"
 
   def whats_new_banner(assigns) do
     file_change = whats_new_file_change(assigns.summary, assigns.current_path)
@@ -552,11 +551,14 @@ defmodule DocpubWeb.CoreComponents do
           </span>
         </p>
       </div>
-      <form method="post" action="/whats-new/mark-read" class="contents">
-        <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
-        <input type="hidden" name="redirect_to" value={@redirect_to} />
-        <button type="submit" class="btn btn-xs btn-ghost">Mark as read</button>
-      </form>
+      <button
+        type="button"
+        phx-click="whats_new_mark_file_read"
+        phx-value-path={@current_path}
+        class="btn btn-xs btn-ghost"
+      >
+        Mark as read
+      </button>
     </section>
     """
   end
