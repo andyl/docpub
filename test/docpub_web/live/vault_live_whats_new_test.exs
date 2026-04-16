@@ -61,7 +61,10 @@ defmodule DocpubWeb.VaultLiveWhatsNewTest do
   end
 
   describe "banner" do
-    test "shows on first view of changed file and includes author", %{conn: conn, baseline: baseline} do
+    test "shows on first view of changed file and includes author", %{
+      conn: conn,
+      baseline: baseline
+    } do
       {:ok, view, _html} = live(conn_with_baseline(conn, baseline), "/doc/README")
       assert has_element?(view, "#whats-new-banner")
       assert render(view) =~ "Alice"

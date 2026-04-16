@@ -256,7 +256,10 @@ defmodule DocpubWeb.VaultLive do
       |> Enum.filter(fn folder -> Enum.any?(paths, &String.starts_with?(&1, folder <> "/")) end)
       |> MapSet.new()
 
-    summary = %{socket.assigns.whats_new_summary | files: Enum.reject(socket.assigns.whats_new_summary.files, &(&1.path == path))}
+    summary = %{
+      socket.assigns.whats_new_summary
+      | files: Enum.reject(socket.assigns.whats_new_summary.files, &(&1.path == path))
+    }
 
     assign(socket,
       whats_new_paths: paths,

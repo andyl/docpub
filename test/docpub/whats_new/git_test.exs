@@ -81,6 +81,58 @@ defmodule Docpub.WhatsNew.GitTest do
     end
   end
 
+  describe "inside_work_tree?/1" do
+    test "returns true for a git repo", %{repo: repo} do
+      _ = commit(repo, "a.md", "x", "init")
+      assert Git.inside_work_tree?(repo)
+    end
+
+    test "returns true for a subdirectory of a git repo", %{repo: repo} do
+      sub = Path.join(repo, "docs")
+      File.mkdir_p!(sub)
+      _ = commit(repo, "docs/a.md", "x", "init")
+      assert Git.inside_work_tree?(sub)
+    end
+
+    test "returns false for a non-repo directory" do
+      dir = Path.join(System.tmp_dir!(), "not_repo_#{System.unique_integer([:positive])}")
+      File.mkdir_p!(dir)
+      on_exit(fn -> File.rm_rf!(dir) end)
+      refute Git.inside_work_tree?(dir)
+    end
+  end
+
+  describe "diff_range/3 with subtree vault" do
+    test "only includes files under the vault subtree", %{repo: repo} do
+      sub = Path.join(repo, "vault")
+      File.mkdir_p!(sub)
+      from = commit(repo, "vault/a.md", "hello", "add vault file")
+      _ = commit(repo, "outside.md", "nope", "add outside file")
+      _ = commit(repo, "vault/b.md", "world", "add another vault file")
+      to = rev_parse(repo, "HEAD")
+
+      {:ok, files} = Git.diff_range(sub, from, to)
+      paths = Enum.map(files, & &1.path)
+
+      assert "b.md" in paths
+      refute "outside.md" in paths
+      refute "vault/b.md" in paths
+    end
+
+    test "paths are relative to the subtree root", %{repo: repo} do
+      sub = Path.join(repo, "vault/nested")
+      File.mkdir_p!(sub)
+      from = commit(repo, "vault/nested/a.md", "hello", "init")
+      File.write!(Path.join(sub, "a.md"), "updated\n")
+      git!(repo, ["add", "vault/nested/a.md"])
+      git!(repo, ["commit", "-q", "-m", "modify"])
+      to = rev_parse(repo, "HEAD")
+
+      {:ok, files} = Git.diff_range(sub, from, to)
+      assert [%{path: "a.md"}] = files
+    end
+  end
+
   # --- helpers ---
 
   describe "line_hunks/4" do

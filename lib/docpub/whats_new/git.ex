@@ -18,6 +18,17 @@ defmodule Docpub.WhatsNew.Git do
   @type meta :: %{sha: String.t(), author: String.t(), date: DateTime.t()}
 
   @doc """
+  Returns `true` when `path` is inside a git work tree.
+  """
+  @spec inside_work_tree?(String.t()) :: boolean()
+  def inside_work_tree?(path) do
+    case run(path, ["rev-parse", "--is-inside-work-tree"]) do
+      {:ok, out} -> String.trim(out) == "true"
+      _ -> false
+    end
+  end
+
+  @doc """
   Returns the current HEAD commit metadata for `repo_path`.
   """
   @spec head(String.t()) :: {:ok, meta()} | {:error, atom()}
@@ -59,17 +70,23 @@ defmodule Docpub.WhatsNew.Git do
            run(repo_path, [
              "diff",
              "--name-status",
+             "--relative",
              "-M",
              "-z",
-             from_sha <> ".." <> to_sha
+             from_sha <> ".." <> to_sha,
+             "--",
+             "."
            ]),
          {:ok, numstat} <-
            run(repo_path, [
              "diff",
              "--numstat",
+             "--relative",
              "-M",
              "-z",
-             from_sha <> ".." <> to_sha
+             from_sha <> ".." <> to_sha,
+             "--",
+             "."
            ]) do
       entries = parse_name_status(name_status)
       stats = parse_numstat(numstat)

@@ -70,8 +70,7 @@ defmodule Docpub.WhatsNew.Cache do
         Logger.info("WhatsNew.Cache: no vault_path configured, cache disabled")
         :ignore
 
-      not File.dir?(Path.join(vault_path, ".git")) and
-          not File.regular?(Path.join(vault_path, ".git")) ->
+      not Git.inside_work_tree?(vault_path) ->
         Logger.info("WhatsNew.Cache: vault is not a git repository, cache disabled")
         :ignore
 
