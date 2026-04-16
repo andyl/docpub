@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.20 (2026-04-16)
+
+
+
+
+### Bug Fixes:
+
+* cookie overflow bug by andyl
+
 ## v0.1.19 (2026-04-16)
 
 
