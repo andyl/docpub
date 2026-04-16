@@ -28,7 +28,10 @@ defmodule DocpubWeb.Plugs.WhatsNewTest do
   end
 
   test "assigns a summary and stamps a signed cookie on the response", %{conn: conn} do
-    conn = Plug.call(conn, Plug.init([]))
+    conn =
+      conn
+      |> Elixir.Plug.Test.init_test_session(%{})
+      |> Plug.call(Plug.init([]))
 
     assert %Summary{} = conn.assigns.whats_new
 

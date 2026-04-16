@@ -469,6 +469,183 @@ defmodule DocpubWeb.CoreComponents do
   end
 
   @doc """
+  Renders the What's New global toast.
+
+  Renders only when the summary describes one or more changed files and the
+  user has not dismissed the toast in this session. Cookie state is untouched
+  by the dismiss action — that's left to the mark-as-read POST.
+  """
+  attr :summary, :map, required: true
+  attr :dismissed, :boolean, default: false
+  attr :redirect_to, :string, default: "/"
+
+  def whats_new_toast(assigns) do
+    ~H"""
+    <div
+      :if={whats_new_visible?(@summary, @dismissed)}
+      id="whats-new-toast"
+      role="status"
+      aria-live="polite"
+      class="toast toast-top toast-end max-md:toast-bottom max-md:toast-center z-50"
+    >
+      <div class="alert alert-info w-80 sm:w-96 max-w-80 sm:max-w-96 text-wrap">
+        <.icon name="hero-sparkles" class="size-5 shrink-0" />
+        <div class="flex-1">
+          <p class="font-semibold">{whats_new_toast_title(@summary)}</p>
+          <p class="text-xs opacity-80">{whats_new_counts_text(@summary)}</p>
+        </div>
+        <form method="post" action="/whats-new/mark-read" class="contents">
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+          <input type="hidden" name="redirect_to" value={@redirect_to} />
+          <button type="submit" class="btn btn-xs btn-ghost" aria-label="Mark all changes as read">
+            Mark all read
+          </button>
+        </form>
+        <button
+          type="button"
+          phx-click="whats_new_dismiss"
+          class="btn btn-xs btn-ghost"
+          aria-label="Dismiss what's new toast"
+        >
+          <.icon name="hero-x-mark" class="size-4" />
+        </button>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders the per-document What's New banner above markdown content.
+
+  Renders only when `current_path` matches a file in the summary's change set.
+  """
+  attr :summary, :map, required: true
+  attr :current_path, :string, default: nil
+  attr :redirect_to, :string, default: "/"
+
+  def whats_new_banner(assigns) do
+    file_change = whats_new_file_change(assigns.summary, assigns.current_path)
+    assigns = assign(assigns, :file_change, file_change)
+
+    ~H"""
+    <section
+      :if={@file_change}
+      id="whats-new-banner"
+      role="region"
+      aria-label="What's new for this document"
+      class="mb-4 rounded border border-info/40 bg-info/10 px-3 py-2 flex items-center gap-3 text-sm"
+    >
+      <.icon name="hero-sparkles" class="size-4 shrink-0 text-info" />
+      <div class="flex-1">
+        <p>
+          <span class={["font-medium", whats_new_kind_class(@file_change.change)]}>
+            {whats_new_kind_label(@file_change.change)}
+          </span>
+          <span class="opacity-80">
+            by {@file_change.last_commit_author} · {relative_time(@file_change.last_commit_date)}
+          </span>
+          <span
+            :if={@file_change.change == :renamed and @file_change.previous_path}
+            class="opacity-70"
+          >
+            · previously at {@file_change.previous_path}
+          </span>
+        </p>
+      </div>
+      <form method="post" action="/whats-new/mark-read" class="contents">
+        <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
+        <input type="hidden" name="redirect_to" value={@redirect_to} />
+        <button type="submit" class="btn btn-xs btn-ghost">Mark as read</button>
+      </form>
+    </section>
+    """
+  end
+
+  @doc "Renders a small dot marker for changed sidebar entries."
+  attr :change, :atom, required: true
+  attr :title, :string, default: nil
+  attr :class, :any, default: nil
+
+  def whats_new_marker(assigns) do
+    ~H"""
+    <span
+      class={[
+        "size-1.5 rounded-full shrink-0 inline-block",
+        whats_new_marker_color(@change),
+        @class
+      ]}
+      aria-hidden="true"
+      title={@title}
+    />
+    """
+  end
+
+  defp whats_new_visible?(%{kind: :diff, files: [_ | _]}, false), do: true
+  defp whats_new_visible?(_summary, _dismissed), do: false
+
+  defp whats_new_toast_title(%{counts: counts}) do
+    total = counts.added + counts.modified + counts.renamed + counts.deleted
+    "#{total} #{pluralize(total, "file")} changed since your last visit"
+  end
+
+  defp whats_new_counts_text(%{counts: c}) do
+    [
+      c.added > 0 && "#{c.added} added",
+      c.modified > 0 && "#{c.modified} modified",
+      c.renamed > 0 && "#{c.renamed} renamed",
+      c.deleted > 0 && "#{c.deleted} deleted"
+    ]
+    |> Enum.filter(& &1)
+    |> Enum.join(" · ")
+  end
+
+  defp pluralize(1, word), do: word
+  defp pluralize(_, word), do: word <> "s"
+
+  defp whats_new_file_change(%{kind: :diff, files: files}, current_path)
+       when is_binary(current_path) do
+    Enum.find(files, fn fc -> fc.path == current_path end)
+  end
+
+  defp whats_new_file_change(_summary, _path), do: nil
+
+  defp whats_new_kind_label(:added), do: "Added"
+  defp whats_new_kind_label(:modified), do: "Updated"
+  defp whats_new_kind_label(:renamed), do: "Renamed"
+  defp whats_new_kind_label(:deleted), do: "Deleted"
+
+  defp whats_new_kind_class(:added), do: "text-success"
+  defp whats_new_kind_class(:modified), do: "text-warning"
+  defp whats_new_kind_class(:renamed), do: "text-info"
+  defp whats_new_kind_class(:deleted), do: "text-error"
+
+  defp whats_new_marker_color(:added), do: "bg-success"
+  defp whats_new_marker_color(:modified), do: "bg-warning"
+  defp whats_new_marker_color(:renamed), do: "bg-info"
+  defp whats_new_marker_color(:deleted), do: "bg-error"
+  defp whats_new_marker_color(:rollup), do: "bg-base-content/30"
+  defp whats_new_marker_color(_), do: "bg-base-content/30"
+
+  @doc """
+  Returns a coarse human-readable relative time string for a `DateTime`.
+  """
+  @spec relative_time(DateTime.t() | nil) :: String.t()
+  def relative_time(nil), do: ""
+
+  def relative_time(%DateTime{} = dt) do
+    seconds = DateTime.diff(DateTime.utc_now(), dt, :second)
+
+    cond do
+      seconds < 60 -> "just now"
+      seconds < 3600 -> "#{div(seconds, 60)}m ago"
+      seconds < 86_400 -> "#{div(seconds, 3600)}h ago"
+      seconds < 86_400 * 7 -> "#{div(seconds, 86_400)}d ago"
+      seconds < 86_400 * 30 -> "#{div(seconds, 86_400 * 7)}w ago"
+      true -> Calendar.strftime(dt, "%Y-%m-%d")
+    end
+  end
+
+  @doc """
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do

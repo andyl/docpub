@@ -26,6 +26,7 @@ defmodule DocpubWeb.Router do
     live "/login", LoginLive
     get "/auth/callback", AuthController, :callback
     post "/auth/logout", AuthController, :logout
+    post "/whats-new/mark-read", WhatsNewController, :mark_read
   end
 
   # Protected routes

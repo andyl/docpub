@@ -3,6 +3,7 @@ defmodule DocpubWeb.VaultLive do
 
   alias Docpub.Vault
   alias Docpub.Markdown
+  alias Docpub.WhatsNew.Summary
 
   @impl true
   def mount(_params, session, socket) do
@@ -12,6 +13,8 @@ defmodule DocpubWeb.VaultLive do
     tree = Vault.list_tree(vault_path)
     flat_tree = Vault.flatten_tree(tree)
     last_visited = session["last_visited_page"]
+    summary = session["whats_new_summary"] || %Summary{}
+    {paths, folders, kinds} = build_whats_new_indexes(summary)
 
     {:ok,
      assign(socket,
@@ -20,6 +23,7 @@ defmodule DocpubWeb.VaultLive do
        flat_tree: flat_tree,
        current_path: nil,
        current_doc: nil,
+       current_path_uri: "/",
        rendered_html: nil,
        raw_content: nil,
        mode: :view,
@@ -30,18 +34,62 @@ defmodule DocpubWeb.VaultLive do
        page_title: "Home",
        doc_type: nil,
        new_file_name: "",
-       expanded_folders: MapSet.new()
+       expanded_folders: MapSet.new(),
+       whats_new_summary: summary,
+       whats_new_paths: paths,
+       whats_new_folders: folders,
+       whats_new_kinds: kinds,
+       whats_new_toast_dismissed: false
      )}
   end
 
+  defp build_whats_new_indexes(%Summary{kind: :diff, files: files}) do
+    paths =
+      files
+      |> Enum.map(& &1.path)
+      |> MapSet.new()
+
+    folders =
+      files
+      |> Enum.flat_map(&ancestor_dirs(&1.path))
+      |> MapSet.new()
+
+    kinds =
+      Enum.into(files, %{}, fn fc -> {fc.path, fc} end)
+
+    {paths, folders, kinds}
+  end
+
+  defp build_whats_new_indexes(_summary), do: {MapSet.new(), MapSet.new(), %{}}
+
+  defp ancestor_dirs(path) do
+    path
+    |> Path.dirname()
+    |> collect_ancestors([])
+  end
+
+  defp collect_ancestors(".", acc), do: acc
+  defp collect_ancestors("/", acc), do: acc
+
+  defp collect_ancestors(dir, acc) do
+    collect_ancestors(Path.dirname(dir), [dir | acc])
+  end
+
   @impl true
-  def handle_params(%{"path" => path_parts}, _uri, socket) do
+  def handle_params(%{"path" => path_parts} = _params, uri, socket) do
     relative_path = Path.join(path_parts)
-    socket = socket |> load_document(relative_path) |> assign(sidebar_open: false)
+
+    socket =
+      socket
+      |> assign(current_path_uri: request_path(uri))
+      |> load_document(relative_path)
+      |> assign(sidebar_open: false)
+
     {:noreply, socket}
   end
 
-  def handle_params(_params, _uri, socket) do
+  def handle_params(_params, uri, socket) do
+    socket = assign(socket, current_path_uri: request_path(uri))
     initial_page = Application.get_env(:docpub, :initial_page)
 
     target =
@@ -176,6 +224,16 @@ defmodule DocpubWeb.VaultLive do
     end
   end
 
+  defp request_path(uri) when is_binary(uri) do
+    case URI.parse(uri) do
+      %URI{path: nil} -> "/"
+      %URI{path: path, query: nil} -> path
+      %URI{path: path, query: q} -> path <> "?" <> q
+    end
+  end
+
+  defp request_path(_), do: "/"
+
   defp expand_parents(path, expanded) do
     path
     |> Path.dirname()
@@ -305,6 +363,10 @@ defmodule DocpubWeb.VaultLive do
     {:noreply, assign(socket, new_file_name: name)}
   end
 
+  def handle_event("whats_new_dismiss", _params, socket) do
+    {:noreply, assign(socket, whats_new_toast_dismissed: true)}
+  end
+
   @impl true
   def handle_info({:vault_changed, _path, _events}, socket) do
     vault_path = socket.assigns.vault_path
@@ -339,14 +401,23 @@ defmodule DocpubWeb.VaultLive do
   attr :current_path, :string, default: nil
   attr :expanded, :any, required: true
   attr :depth, :integer, default: 0
+  attr :whats_new_paths, :any, default: nil
+  attr :whats_new_folders, :any, default: nil
+  attr :whats_new_kinds, :map, default: %{}
 
   def tree_nodes(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:whats_new_paths, fn -> MapSet.new() end)
+      |> assign_new(:whats_new_folders, fn -> MapSet.new() end)
+
     ~H"""
     <ul class={[@depth > 0 && "ml-3"]}>
       <%= for node <- @nodes do %>
         <li>
           <%= if node.type == :folder do %>
             <button
+              id={"tree-#{node.path}"}
               phx-click="toggle_folder"
               phx-value-path={node.path}
               class="flex items-center gap-1 w-full px-1 py-0.5 rounded text-sm hover:bg-base-300 text-left"
@@ -360,7 +431,15 @@ defmodule DocpubWeb.VaultLive do
                 class="size-3 shrink-0"
               />
               <.icon name="hero-folder-micro" class="size-4 shrink-0 text-warning" />
-              <span class="truncate">{node.name}</span>
+              <span class="truncate flex-1">{node.name}</span>
+              <.whats_new_marker
+                :if={
+                  not MapSet.member?(@expanded, node.path) and
+                    MapSet.member?(@whats_new_folders, node.path)
+                }
+                change={:rollup}
+                title="Contains recent changes"
+              />
             </button>
             <%= if MapSet.member?(@expanded, node.path) do %>
               <.tree_nodes
@@ -368,10 +447,14 @@ defmodule DocpubWeb.VaultLive do
                 current_path={@current_path}
                 expanded={@expanded}
                 depth={@depth + 1}
+                whats_new_paths={@whats_new_paths}
+                whats_new_folders={@whats_new_folders}
+                whats_new_kinds={@whats_new_kinds}
               />
             <% end %>
           <% else %>
             <.link
+              id={"tree-#{node.path}"}
               navigate={doc_path(node)}
               class={[
                 "flex items-center gap-1 w-full px-1 py-0.5 rounded text-sm hover:bg-base-300",
@@ -382,7 +465,12 @@ defmodule DocpubWeb.VaultLive do
                 name={file_icon(node.type)}
                 class={["size-4 shrink-0", file_icon_class(node.type)]}
               />
-              <span class="truncate">{node.name}</span>
+              <span class="truncate flex-1">{node.name}</span>
+              <.whats_new_marker
+                :if={MapSet.member?(@whats_new_paths, node.path)}
+                change={Map.get(@whats_new_kinds, node.path, %{change: :modified}).change}
+                title={whats_new_marker_title(Map.get(@whats_new_kinds, node.path))}
+              />
             </.link>
           <% end %>
         </li>
@@ -390,6 +478,16 @@ defmodule DocpubWeb.VaultLive do
     </ul>
     """
   end
+
+  defp whats_new_marker_title(nil), do: nil
+  defp whats_new_marker_title(%{change: :added}), do: "Added"
+  defp whats_new_marker_title(%{change: :modified}), do: "Updated"
+  defp whats_new_marker_title(%{change: :deleted}), do: "Deleted"
+
+  defp whats_new_marker_title(%{change: :renamed, previous_path: prev}) when is_binary(prev),
+    do: "Renamed from " <> prev
+
+  defp whats_new_marker_title(%{change: :renamed}), do: "Renamed"
 
   defp file_icon(:markdown), do: "hero-document-text-micro"
   defp file_icon(:image), do: "hero-photo-micro"

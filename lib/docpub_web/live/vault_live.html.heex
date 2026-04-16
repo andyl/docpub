@@ -48,7 +48,12 @@
   };
 </script>
 
-<Layouts.app flash={@flash}>
+<Layouts.app
+  flash={@flash}
+  whats_new_summary={@whats_new_summary}
+  whats_new_toast_dismissed={@whats_new_toast_dismissed}
+  current_path_uri={@current_path_uri}
+>
   <div
     id="vault-app"
     class="vault-layout flex h-full"
@@ -107,7 +112,14 @@
           </div>
         <% else %>
           <div id="file-tree">
-            <.tree_nodes nodes={@tree} current_path={@current_path} expanded={@expanded_folders} />
+            <.tree_nodes
+              nodes={@tree}
+              current_path={@current_path}
+              expanded={@expanded_folders}
+              whats_new_paths={@whats_new_paths}
+              whats_new_folders={@whats_new_folders}
+              whats_new_kinds={@whats_new_kinds}
+            />
           </div>
         <% end %>
       </div>
@@ -223,6 +235,11 @@
                   </button>
                 </div>
               </div>
+              <.whats_new_banner
+                summary={@whats_new_summary}
+                current_path={@current_path}
+                redirect_to={@current_path_uri}
+              />
               <article
                 id="doc-content"
                 class={[
