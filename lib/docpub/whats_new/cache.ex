@@ -176,7 +176,12 @@ defmodule Docpub.WhatsNew.Cache do
     end
   end
 
-  defp compute_summary(state, nil), do: no_baseline(state)
+  defp compute_summary(state, nil) do
+    case Git.commit_meta(state.vault_path, "HEAD~5") do
+      {:ok, meta} -> compute_summary(state, meta.sha)
+      _ -> no_baseline(state)
+    end
+  end
 
   defp compute_summary(state, from_sha) do
     with true <- Git.commit_exists?(state.vault_path, from_sha) || :unknown,
