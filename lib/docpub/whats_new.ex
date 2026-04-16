@@ -11,7 +11,7 @@ defmodule Docpub.WhatsNew do
   `:no_baseline` summary and a cookie value reflecting the current HEAD.
   """
 
-  alias Docpub.WhatsNew.{Cache, Cookie, Summary}
+  alias Docpub.WhatsNew.{Cache, Cookie, Hunk, Summary}
 
   @doc """
   Summarise vault changes for a visitor.
@@ -47,6 +47,20 @@ defmodule Docpub.WhatsNew do
       end
 
     {summary, new_cookie}
+  end
+
+  @doc """
+  Returns the post-image line hunks for `path` between `from_sha` and `to_sha`.
+
+  Returns `[]` when the cache is unavailable or the file has no recorded
+  changes in that range.
+  """
+  @spec line_hunks(String.t(), String.t(), String.t()) :: [Hunk.t()]
+  def line_hunks(from_sha, to_sha, path) do
+    case Cache.line_hunks(from_sha, to_sha, path) do
+      {:ok, hunks} -> hunks
+      :error -> []
+    end
   end
 
   defp decode(nil), do: nil

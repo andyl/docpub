@@ -116,12 +116,14 @@ defmodule DocpubWeb.VaultLive do
         case Vault.read_file(vault_path, actual_path) do
           {:ok, content} ->
             current_dir = Path.dirname(actual_path)
+            line_marks = whats_new_line_marks(socket, actual_path)
 
             {:ok, html} =
               Markdown.render(content,
                 file_tree: socket.assigns.flat_tree,
                 current_dir: current_dir,
-                vault_path: vault_path
+                vault_path: vault_path,
+                line_marks: line_marks
               )
 
             expanded = expand_parents(actual_path, socket.assigns.expanded_folders)
@@ -224,6 +226,24 @@ defmodule DocpubWeb.VaultLive do
     end
   end
 
+  defp whats_new_line_marks(socket, path) do
+    summary = socket.assigns.whats_new_summary
+
+    cond do
+      summary.kind != :diff ->
+        []
+
+      not MapSet.member?(socket.assigns.whats_new_paths, path) ->
+        []
+
+      is_nil(summary.from_commit) or is_nil(summary.to_commit) ->
+        []
+
+      true ->
+        Docpub.WhatsNew.line_hunks(summary.from_commit, summary.to_commit, path)
+    end
+  end
+
   defp request_path(uri) when is_binary(uri) do
     case URI.parse(uri) do
       %URI{path: nil} -> "/"
@@ -260,12 +280,14 @@ defmodule DocpubWeb.VaultLive do
     case Vault.write_file(vault_path, current_path, content) do
       :ok ->
         current_dir = Path.dirname(current_path)
+        line_marks = whats_new_line_marks(socket, current_path)
 
         {:ok, html} =
           Markdown.render(content,
             file_tree: socket.assigns.flat_tree,
             current_dir: current_dir,
-            vault_path: vault_path
+            vault_path: vault_path,
+            line_marks: line_marks
           )
 
         {:noreply,

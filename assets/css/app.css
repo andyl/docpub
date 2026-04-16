@@ -152,3 +152,21 @@
 
 /* Line clamp utility */
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* What's New per-block change bars (Phase B) */
+.vault-prose [data-whats-new="added"] {
+  border-left: 3px solid var(--color-success);
+  padding-left: 0.5rem;
+}
+.vault-prose [data-whats-new="modified"] {
+  border-left: 3px solid var(--color-warning);
+  padding-left: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .vault-prose [data-whats-new="added"],
+  .vault-prose [data-whats-new="modified"] {
+    border-left-width: 2px;
+    padding-left: 0.25rem;
+  }
+}

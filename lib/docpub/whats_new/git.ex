@@ -7,7 +7,7 @@ defmodule Docpub.WhatsNew.Git do
   returned so callers can fall back to `:no_baseline`.
   """
 
-  alias Docpub.WhatsNew.FileChange
+  alias Docpub.WhatsNew.{FileChange, Hunk}
 
   @markdown_extensions ~w(.md .markdown)
   @image_extensions ~w(.png .jpg .jpeg .gif .svg .webp .bmp)
@@ -88,6 +88,70 @@ defmodule Docpub.WhatsNew.Git do
       {:ok, changes}
     end
   end
+
+  @doc """
+  Returns the list of post-image line hunks for `path` between two commits.
+
+  Hunks reference line numbers in the new (`to_sha`) version of the file. A
+  hunk with no old-side lines is classified as `:added`; otherwise `:modified`.
+  Returns an empty list when there are no changes.
+  """
+  @spec line_hunks(String.t(), String.t(), String.t(), String.t()) ::
+          {:ok, [Hunk.t()]} | {:error, atom()}
+  def line_hunks(repo_path, from_sha, to_sha, path) do
+    args = [
+      "diff",
+      "--unified=0",
+      "--no-color",
+      from_sha <> ".." <> to_sha,
+      "--",
+      path
+    ]
+
+    with {:ok, out} <- run(repo_path, args) do
+      {:ok, parse_hunks(out)}
+    end
+  end
+
+  defp parse_hunks(""), do: []
+
+  defp parse_hunks(out) do
+    out
+    |> String.split("\n", trim: false)
+    |> Enum.flat_map(&parse_hunk_header/1)
+  end
+
+  # `@@ -a,b +c,d @@` (b/d optional, default 1). When d == 0 there are no
+  # post-image lines (pure deletion); skip. When b == 0 and d > 0 it's a pure
+  # addition; otherwise modified.
+  defp parse_hunk_header("@@ " <> rest) do
+    case Regex.run(~r/^-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s+@@/, rest) do
+      nil ->
+        []
+
+      captures ->
+        # `Regex.run` truncates trailing nil captures, so pad to 5 elements.
+        [_full, _a, b_str, c_str | rest_caps] =
+          captures ++ List.duplicate("", 5 - length(captures))
+
+        d_str = List.first(rest_caps) || ""
+        b = parse_int(b_str, 1)
+        c = String.to_integer(c_str)
+        d = parse_int(d_str, 1)
+
+        cond do
+          d == 0 -> []
+          b == 0 -> [%Hunk{kind: :added, start_line: c, end_line: c + d - 1}]
+          true -> [%Hunk{kind: :modified, start_line: c, end_line: c + d - 1}]
+        end
+    end
+  end
+
+  defp parse_hunk_header(_), do: []
+
+  defp parse_int("", default), do: default
+  defp parse_int(nil, default), do: default
+  defp parse_int(s, _default), do: String.to_integer(s)
 
   # --- Internals ---
 

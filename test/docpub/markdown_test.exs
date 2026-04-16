@@ -98,6 +98,48 @@ defmodule Docpub.MarkdownTest do
     end
   end
 
+  describe "line_marks (What's New)" do
+    alias Docpub.WhatsNew.Hunk
+
+    test "stamps data-whats-new on overlapping blocks" do
+      md = """
+      Para one.
+
+      Para two.
+
+      Para three.
+      """
+
+      hunks = [%Hunk{kind: :modified, start_line: 3, end_line: 3}]
+
+      {:ok, html} = Markdown.render(md, line_marks: hunks)
+
+      assert html =~ ~s(data-whats-new="modified")
+      assert html =~ ~s(aria-label="Updated since your last visit")
+      # Sourcepos attribute should be stripped from output
+      refute html =~ "data-sourcepos"
+    end
+
+    test "added wins over modified when both overlap" do
+      md = "Para A.\n\nPara B.\n"
+
+      hunks = [
+        %Hunk{kind: :modified, start_line: 1, end_line: 3},
+        %Hunk{kind: :added, start_line: 1, end_line: 1}
+      ]
+
+      {:ok, html} = Markdown.render(md, line_marks: hunks)
+
+      assert html =~ ~s(data-whats-new="added")
+    end
+
+    test "no-op when line_marks is empty" do
+      {:ok, html} = Markdown.render("Hello.\n", line_marks: [])
+      refute html =~ "data-whats-new"
+      refute html =~ "data-sourcepos"
+    end
+  end
+
   describe "mermaid blocks" do
     test "preserves mermaid code blocks for client-side rendering" do
       {:ok, html} = Markdown.render("```mermaid\ngraph TD\n  A-->B\n```")

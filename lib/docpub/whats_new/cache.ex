@@ -11,7 +11,7 @@ defmodule Docpub.WhatsNew.Cache do
 
   require Logger
 
-  alias Docpub.WhatsNew.{Git, Summary}
+  alias Docpub.WhatsNew.{Git, Hunk, Summary}
 
   @refresh_interval_ms 30_000
   @cache_cap 64
@@ -41,6 +41,16 @@ defmodule Docpub.WhatsNew.Cache do
   @spec summary_for(String.t() | nil) :: {:ok, Summary.t()} | :error
   def summary_for(from_sha) do
     call({:summary_for, from_sha}, :error)
+  end
+
+  @doc """
+  Returns the cached (or freshly computed) post-image line hunks for `path`
+  between `from_sha` and `to_sha`. Returns `:error` when the cache is
+  unavailable.
+  """
+  @spec line_hunks(String.t(), String.t(), String.t()) :: {:ok, [Hunk.t()]} | :error
+  def line_hunks(from_sha, to_sha, path) do
+    call({:line_hunks, from_sha, to_sha, path}, :error)
   end
 
   defp call(msg, fallback) do
@@ -74,7 +84,9 @@ defmodule Docpub.WhatsNew.Cache do
           head: nil,
           head_date: nil,
           summaries: %{},
-          order: []
+          order: [],
+          hunks: %{},
+          hunks_order: []
         }
 
         {:ok, refresh_head(state)}
@@ -108,6 +120,24 @@ defmodule Docpub.WhatsNew.Cache do
     end
   end
 
+  def handle_call({:line_hunks, from_sha, to_sha, path}, _from, state) do
+    key = {from_sha, to_sha, path}
+
+    case Map.fetch(state.hunks, key) do
+      {:ok, hunks} ->
+        {:reply, {:ok, hunks}, touch_hunks(state, key)}
+
+      :error ->
+        case Git.line_hunks(state.vault_path, from_sha, to_sha, path) do
+          {:ok, hunks} ->
+            {:reply, {:ok, hunks}, store_hunks(state, key, hunks)}
+
+          {:error, _} ->
+            {:reply, {:ok, []}, state}
+        end
+    end
+  end
+
   @impl true
   def handle_info(:refresh, state) do
     schedule_refresh()
@@ -130,7 +160,15 @@ defmodule Docpub.WhatsNew.Cache do
         if sha == state.head do
           state
         else
-          %{state | head: sha, head_date: date, summaries: %{}, order: []}
+          %{
+            state
+            | head: sha,
+              head_date: date,
+              summaries: %{},
+              order: [],
+              hunks: %{},
+              hunks_order: []
+          }
         end
 
       _ ->
@@ -203,5 +241,24 @@ defmodule Docpub.WhatsNew.Cache do
 
   defp touch(state, from_sha) do
     %{state | order: [from_sha | Enum.reject(state.order, &(&1 == from_sha))]}
+  end
+
+  defp store_hunks(state, key, hunks) do
+    order = [key | Enum.reject(state.hunks_order, &(&1 == key))]
+    map = Map.put(state.hunks, key, hunks)
+
+    {order, map} =
+      if length(order) > @cache_cap do
+        {kept, [evict]} = Enum.split(order, @cache_cap)
+        {kept, Map.delete(map, evict)}
+      else
+        {order, map}
+      end
+
+    %{state | hunks: map, hunks_order: order}
+  end
+
+  defp touch_hunks(state, key) do
+    %{state | hunks_order: [key | Enum.reject(state.hunks_order, &(&1 == key))]}
   end
 end

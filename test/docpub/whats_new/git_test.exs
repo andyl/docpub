@@ -83,6 +83,31 @@ defmodule Docpub.WhatsNew.GitTest do
 
   # --- helpers ---
 
+  describe "line_hunks/4" do
+    test "classifies pure additions vs modifications", %{repo: repo} do
+      from = commit(repo, "a.md", "line one\nline two\nline three\n", "first")
+
+      File.write!(Path.join(repo, "a.md"), "line one\nLINE TWO\nline three\nline four\n")
+      git!(repo, ["add", "a.md"])
+      git!(repo, ["commit", "-q", "-m", "edit"])
+      to = rev_parse(repo, "HEAD")
+
+      assert {:ok, hunks} = Git.line_hunks(repo, from, to, "a.md")
+
+      kinds = Enum.map(hunks, & &1.kind)
+      assert :modified in kinds
+      assert :added in kinds
+
+      assert Enum.all?(hunks, fn h -> h.start_line >= 1 and h.end_line >= h.start_line end)
+    end
+
+    test "returns empty list for unchanged path", %{repo: repo} do
+      from = commit(repo, "a.md", "x\n", "first")
+      to = commit(repo, "b.md", "y\n", "add b")
+      assert {:ok, []} = Git.line_hunks(repo, from, to, "a.md")
+    end
+  end
+
   defp git!(repo, args) do
     {out, 0} = System.cmd("git", ["-C", repo] ++ args, stderr_to_stdout: true)
     out
