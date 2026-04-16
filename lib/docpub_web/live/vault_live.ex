@@ -13,7 +13,7 @@ defmodule DocpubWeb.VaultLive do
     tree = Vault.list_tree(vault_path)
     flat_tree = Vault.flatten_tree(tree)
     last_visited = session["last_visited_page"]
-    summary = session["whats_new_summary"] || %Summary{}
+    {summary, _new_cookie} = Docpub.WhatsNew.summarize(session["whats_new_cookie"])
     {paths, folders, kinds} = build_whats_new_indexes(summary)
 
     {:ok,

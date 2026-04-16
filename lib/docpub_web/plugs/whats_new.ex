@@ -20,7 +20,7 @@ defmodule DocpubWeb.Plugs.WhatsNew do
 
     conn
     |> assign(:whats_new, summary)
-    |> put_session(:whats_new_summary, summary)
+    |> put_session(:whats_new_cookie, cookie_value)
     |> maybe_put_cookie(new_cookie)
   end
 
