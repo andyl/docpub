@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.22 (2026-04-16)
+
+
+
+
+### Bug Fixes:
+
+* auto mark on visit by andyl
+
 ## v0.1.21 (2026-04-16)
 
 
