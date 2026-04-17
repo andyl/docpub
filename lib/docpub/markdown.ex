@@ -93,6 +93,7 @@ defmodule Docpub.Markdown do
               |> drop_sourcepos()
               |> List.keystore("data-whats-new", 0, {"data-whats-new", Atom.to_string(kind)})
               |> List.keystore("aria-label", 0, {"aria-label", label})
+              |> List.keystore("title", 0, {"title", label})
 
             {tag, attrs, children}
         end

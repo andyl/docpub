@@ -509,7 +509,7 @@ defmodule DocpubWeb.CoreComponents do
         phx-value-path={@current_path}
         class="btn btn-xs btn-ghost"
       >
-        Close
+        Clear
       </button>
     </section>
     """

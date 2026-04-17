@@ -103,7 +103,7 @@ defmodule DocpubWeb.VaultLive do
 
     case target do
       nil -> {:noreply, socket}
-      path -> {:noreply, push_navigate(socket, to: ~p"/doc/#{String.split(path, "/")}")}
+      path -> {:noreply, push_patch(socket, to: ~p"/doc/#{String.split(path, "/")}")}
     end
   end
 
@@ -357,7 +357,7 @@ defmodule DocpubWeb.VaultLive do
          socket
          |> assign(tree: tree, flat_tree: flat_tree)
          |> put_flash(:info, "Document deleted")
-         |> push_navigate(to: ~p"/")}
+         |> push_patch(to: ~p"/")}
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed to delete: #{reason}")}
@@ -385,7 +385,7 @@ defmodule DocpubWeb.VaultLive do
         {:noreply,
          socket
          |> assign(tree: tree, flat_tree: flat_tree, new_file_name: "")
-         |> push_navigate(to: ~p"/doc/#{String.split(doc_path, "/")}")}
+         |> push_patch(to: ~p"/doc/#{String.split(doc_path, "/")}")}
 
       {:error, :eexist} ->
         {:noreply, put_flash(socket, :error, "File already exists")}
@@ -540,7 +540,7 @@ defmodule DocpubWeb.VaultLive do
           <% else %>
             <.link
               id={"tree-#{node.path}"}
-              navigate={doc_path(node)}
+              patch={doc_path(node)}
               class={[
                 "flex items-center gap-1 w-full px-1 py-0.5 rounded text-sm hover:bg-base-300",
                 @current_path == node.path && "bg-primary/10 text-primary font-medium"

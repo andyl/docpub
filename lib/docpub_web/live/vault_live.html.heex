@@ -95,7 +95,7 @@
             <%= for result <- @search_results do %>
               <div class="rounded bg-base-300/50 p-2">
                 <.link
-                  navigate={~p"/doc/#{String.split(Path.rootname(result.path), "/")}"}
+                  patch={~p"/doc/#{String.split(Path.rootname(result.path), "/")}"}
                   class="text-sm font-medium text-primary hover:underline"
                 >
                   {result.path}
