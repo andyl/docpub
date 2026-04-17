@@ -5,6 +5,8 @@ defmodule DocpubWeb.Layouts do
   """
   use DocpubWeb, :html
 
+  @dev_routes_enabled Application.compile_env(:docpub, :dev_routes, false)
+
   embed_templates "layouts/*"
 
   @doc """
@@ -28,7 +30,10 @@ defmodule DocpubWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
-    assigns = assign_new(assigns, :site_title, fn -> Docpub.Server.title() end)
+    assigns =
+      assigns
+      |> assign_new(:site_title, fn -> Docpub.Server.title() end)
+      |> assign(:dev_routes_enabled, @dev_routes_enabled)
 
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8 h-14 min-h-0 border-b border-base-300 bg-base-100">
@@ -36,6 +41,11 @@ defmodule DocpubWeb.Layouts do
         <a href="/" class="flex items-center gap-2 text-lg font-bold">
           <.icon name="hero-book-open" class="size-5 text-primary" />{@site_title}
         </a>
+      </div>
+      <div :if={@dev_routes_enabled} class="hidden sm:block">
+        <.link href="/dev/whats-new/reset" class="btn btn-ghost btn-sm gap-2">
+          <.icon name="hero-arrow-path" class="size-4" /> Reset What's New
+        </.link>
       </div>
     </header>
 

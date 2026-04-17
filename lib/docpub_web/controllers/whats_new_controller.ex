@@ -31,6 +31,14 @@ defmodule DocpubWeb.WhatsNewController do
     redirect(conn, to: redirect_to)
   end
 
+  def reset(conn, params) do
+    redirect_to = safe_redirect(params["redirect_to"])
+
+    conn
+    |> delete_resp_cookie(Cookie.name())
+    |> redirect(to: redirect_to)
+  end
+
   defp safe_redirect(path) when is_binary(path) do
     cond do
       String.starts_with?(path, "//") -> "/"

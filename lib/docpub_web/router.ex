@@ -47,5 +47,11 @@ defmodule DocpubWeb.Router do
 
       live_dashboard "/dashboard", metrics: DocpubWeb.Telemetry
     end
+
+    scope "/dev", DocpubWeb do
+      pipe_through :browser
+
+      get "/whats-new/reset", WhatsNewController, :reset
+    end
   end
 end
