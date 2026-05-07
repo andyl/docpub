@@ -26,6 +26,8 @@ deps.unlock	Unlocks the given dependencies
 deps.update	Updates the given dependencies
 do	Executes the tasks separated by plus
 docpub.serve	Starts the Docpub vault viewer server
+elixir_make.checksum	Fetch precompiled NIFs and build the checksums
+elixir_make.precompile	Precompiles the given project for all targets
 esbuild	Invokes esbuild with the profile and args
 esbuild.install	Installs esbuild under _build
 escript	Lists installed escripts
@@ -101,7 +103,7 @@ phx.gen.release	Generates release files and optional Dockerfile for release-base
 phx.gen.schema	Generates an Ecto schema and migration file
 phx.gen.secret	Generates a secret
 phx.gen.socket	Generates a Phoenix socket handler
-phx.new	Creates a new Phoenix v1.8.5 application
+phx.new	Creates a new Phoenix v1.8.4 application
 phx.new.ecto	Creates a new Ecto project within an umbrella project
 phx.new.web	Creates a new Phoenix web project within an umbrella project
 phx.routes	Prints all routes
@@ -130,7 +132,22 @@ release.init	Generates sample files for releases
 run	Runs the current application
 rustler_precompiled.download	Download precompiled NIFs and build the checksums
 setup	Alias defined in mix.exs
+sysd	Display Sysd help
+sysd.check	Check SSH connection and permissions
+sysd.cleanup	Remove everything from server
+sysd.deploy	Deploy an existing release tarball to servers
+sysd.init	Generate config stubs
+sysd.remove	Remove old releases
+sysd.restart	Restart the systemd service
+sysd.rollback	Rollback to a previous version
+sysd.setup	Setup servers for deployment
+sysd.start	Start the systemd service
+sysd.status	Show systemd service status
+sysd.stop	Stop the systemd service
+sysd.tail	Tail journal logs from a server
+sysd.versions	List release versions on servers
 tableau.new	Generate a new Tableau website
+tableau.site	Find and clone other Tableau websites
 tailwind	Invokes tailwind with the profile and args
 tailwind.install	Installs Tailwind executable
 test	Runs a project's tests
