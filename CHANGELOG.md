@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## v0.1.25 (2026-05-07)
+
+
+
+
+### Bug Fixes:
+
+* update deployment targets by andyl
+
 ## v0.1.24 (2026-04-17)
 
 
